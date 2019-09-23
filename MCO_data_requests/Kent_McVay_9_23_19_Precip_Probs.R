@@ -71,19 +71,43 @@ for(i in 1:length(unique(group_by_vec))){
   integrated_precip[,i] = values(raster_precip_clipped[[i]])
 }
 
-quantile_30 = function(x){
-  temp = quantile(x,0.3, na.rm = T)
-  return(temp)
-}
-
-quantile_50 = function(x){
-  temp = quantile(x,0.5, na.rm = T)
-  return(temp)
+ # quantile fucntions
+{
+  quantile_10 = function(x){
+    temp = quantile(x,0.1, na.rm = T)
+    return(temp)
+  }
+  
+  quantile_30 = function(x){
+    temp = quantile(x,0.3, na.rm = T)
+    return(temp)
+  }
+  
+  quantile_50 = function(x){
+    temp = quantile(x,0.5, na.rm = T)
+    return(temp)
+  }
+  
+  quantile_70 = function(x){
+    temp = quantile(x,0.7, na.rm = T)
+    return(temp)
+  }
+  
+  quantile_90 = function(x){
+    temp = quantile(x,0.9, na.rm = T)
+    return(temp)
+  } 
 }
 
 #calcualte precipitation qunatiles
-precip_quantiles_30 = parApply(cl,integrated_precip, 1, FUN = quantile_30)
-precip_quantiles_50 = parApply(cl,integrated_precip, 1, FUN = quantile_50)
+functions = c("quantile_10","quantile_30","quantile_50",
+              "quantile_70","quantile_90")
+
+precip_quantiles = list()
+for(i in 1:length(functions)){
+  precip_quantiles[[i]] = parApply(cl,integrated_precip, 1, FUN = functions[i])
+}
+
 
 #stop parellel cluster
 stopCluster(cl)
@@ -92,67 +116,52 @@ stopCluster(cl)
 ############## RASTER FILE #################
 ############################################
 
-#create spatial template for quantile values
-precip_30 = raster_precip_clipped[[1]]
-precip_50 = raster_precip_clipped[[1]]
+precip = list()
 
-#allocate quantile values to spatial template
-values(precip_30) = precip_quantiles_30
-values(precip_50) = precip_quantiles_50
+for(i in 1:length(functions)){
+  #create spatial template for quantile values
+  precip[[i]] = raster_precip_clipped[[1]]
+  #allocate quantile values to spatial template
+  values(precip[[i]]) = precip_quantiles[[i]]
+  #convert to in
+  precip[[i]] = precip[[i]]/25.4
+  #write GeoTiff
+  writeRaster(precip[[i]], paste0("~/MCO/data_output/montana_", functions[i],".tif"), format = "GTiff", overwrite = T)
+  #set max values
+  #values(precip[[i]])[values(precip[[i]]) > 15] = 15
+}
 
-#convert to in
-precip_30 = precip_30/25.4
-precip_50 = precip_50/25.4
-
-#write GeoTiff
-writeRaster(precip_30, "~/MCO/data_output/montana_30_percent_propability.tif", format = "GTiff", overwrite = T)
-writeRaster(precip_50, "~/MCO/data_output/montana_50_percent_propability.tif", format = "GTiff", overwrite = T)
-
-#set upper bounds
-values(precip_30)[values(precip_30) > 10] = 10
-values(precip_50)[values(precip_50) > 10] = 10
-
-#compute color ramp for visualization
-color_ramp = colorRampPalette(c("darkred","red", "white", "blue", "darkblue"))
-
-#plot map
-plot(precip_30, col = color_ramp(100), 
-     main = "30% Quantile Precip Sum (05/01 - 07/31)")
-
-plot(precip_50, col = color_ramp(100), 
-     main = "50% Quantile Precip Sum (05/01 - 07/31)")
-
+#plot leaflet
 source("~/MCO/R/base_map.R")
 
-ramp = c('#d73027','#f46d43','#fdae61','#fee090','#ffffbf','#e0f3f8','#abd9e9','#74add1','#4575b4')
+ramp = c('#d73027','#f46d43','#fdae61','#fee090','#ffffbf','#e0f3f8','#abd9e9','#74add1','#4575b4', "#00008b")
 
 pal1 <- leaflet::colorBin(ramp, 
                          domain = NULL,
-                         bins = c(2:9,20),
+                         bins = c(seq(1,6,1), seq(7,15,2),c(20,25,30)),
                          na.color = "transparent")
 
-names = c("30th Percentile [in]", "50th Percentile (median) [in]")
+names = c("10th Percentile [in] (very dry year)","30th Percentile [in] (dry year)", 
+          "50th Percentile [in] (average year)", "70th Percentile [in] (wet year)", "90th Percentile [in] (very wet year)")
 
-map = base_map()%>%
-  leaflet::addRasterImage(precip_30, colors = pal1, opacity = 0.8, group = names[1], project = TRUE)%>%
-  leaflet::addRasterImage(precip_50, colors = pal1, opacity = 0.8, group = names[2], project = TRUE)%>%
+map = base_map()
+
+for(i in 1: length(names)){
+  map = map %>% 
+        leaflet::addRasterImage(precip[[i]], colors = pal1, opacity = 0.8, group = names[i], project = TRUE)
+}
   
-  
-  leaflet::addLegend(group = names[1], pal = pal1,
-            title = paste0(names[1], "<br>May 1 - July 31<br>(1979-2019)"),
-            values = c(2:9,20),
+map = map %>% 
+  leaflet::addLegend(pal = pal1,
+            title = "May 1 - July 31<br>(1979-2019)",
+            values = c(seq(1,6,1), seq(7,15,2),c(20,25,30)),
             position = "bottomleft")%>%
   
-  leaflet::addLegend(group = names[2], pal = pal1,
-                     title = paste0(names[2], "<br>May 1 - July 31<br>(1979-2019)"),
-                     values = c(2:9,20),
-                     position = "bottomleft")%>%
-  
   leaflet::addLayersControl(position = "topleft",
-                            overlayGroups = names,
-                            baseGroups = c("States"),
+                            baseGroups = names,
+                            overlayGroups = c("States"),
                             options = leaflet::layersControlOptions(collapsed = FALSE))%>%
-  leaflet::hideGroup(names[2])
+  leaflet::hideGroup(names[c(1,2,4,5)])
 
 map
 
