@@ -141,9 +141,11 @@ counties_simple = rgeos::gSimplify(counties, tol = 0.001, topologyPreserve = TRU
 
 ramp = c('#d73027','#f46d43','#fdae61','#fee090','#ffffbf','#e0f3f8','#abd9e9','#74add1','#4575b4', "#00008b", "#2E0854")
 
+bins = c(seq(1,9,1), seq(11,15,2),c(20,25,30))
+
 pal1 <- leaflet::colorBin(ramp, 
                          domain = NULL,
-                         bins = c(seq(1,9,1), seq(11,15,2),c(20,25,30)),
+                         bins = bins,
                          na.color = "transparent")
 
 names = c("10th Percentile [in] (very dry year)","30th Percentile [in] (dry year)", 
@@ -159,7 +161,7 @@ for(i in 1: length(names)){
 map = map %>% 
   leaflet::addLegend(pal = pal1,
             title = "May 1 - July 31<br>(1979-2019)",
-            values = c(seq(1,9,1), seq(11,15,2),c(20,25,30)),
+            values = bins,
             position = "bottomleft")%>%
   leaflet::addPolygons(data = counties_simple, group = "Counties", fillColor = "transparent", weight = 2, color = "black", opacity = 1)%>%
   leaflet::addLayersControl(position = "topleft",
@@ -173,3 +175,35 @@ map
 
 htmlwidgets::saveWidget(map, "~/MCO/data_output/precip_probs.html", selfcontained = T)
 
+library(ggplot2)
+
+rpal_static = colorRampPalette(ramp)
+
+precip.p = data.frame(rasterToPoints(precip[[3]]))
+precip.p$group = as.factor(.bincode(precip.p$layer, bins))
+
+labels = c("1-2", "2-3", "3-4","4-5", "5-6", "6-7",
+           "7-8", "8-9", "9-11","11-13", "13-15", 
+           "15-20", "20-25", "25-30")
+
+montana.p = fortify(montana)
+counties.p = fortify(counties_simple)
+
+map_static = ggplot(data = precip.p)+
+  geom_tile(aes(x = x, y = y, fill = group))+
+  scale_fill_manual("inches",labels=labels[3:12],
+                    values = ramp[2:11])+
+  ggtitle("Median Accumulated Precipitation\n (May 1 - July 31)")+
+  theme_bw(base_size = 16)+
+  geom_polygon(data = montana.p, aes(x = long, y = lat, group = group), fill = NA, color = "black")+
+  geom_polygon(data = counties.p, aes(x = long, y = lat, group = group), fill = NA, color = "black", size = 0.1)+
+  xlab("Longitude")+
+  ylab("Latitude")+
+  theme(plot.title = element_text(hjust = 0.5),
+        panel.grid.major = element_blank(),
+        panel.grid.minor = element_blank())
+
+map_static
+
+ggsave("~/MCO/data_output/median_precipitation.png", plot = map_static, width = 8, height = 5, 
+       units = "in", device = "png", dpi = 500)
