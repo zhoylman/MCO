@@ -120,16 +120,18 @@ writeRaster(precip_50, "~/MCO/data_output/montana_50_percent_propability.tif", f
 
 source("~/MCO/R/base_map.R")
 
-pal_30 <- leaflet::colorNumeric(c("#8b0000", "#ff0000", "#ffffff", "#0000ff", "#000d66"), 
+ramp = c('#d73027','#f46d43','#fdae61','#fee090','#ffffbf','#e0f3f8','#abd9e9','#74add1','#4575b4')
+
+pal_30 <- leaflet::colorNumeric(ramp, 
                                 min(values(precip_30), na.rm = T):max(values(precip_30), na.rm = T),
                                 na.color = "transparent")
-pal_50 <- leaflet::colorNumeric(c("#8b0000", "#ff0000", "#ffffff", "#0000ff", "#000d66"), 
+pal_50 <- leaflet::colorNumeric(ramp, 
                                 min(values(precip_50), na.rm = T):max(values(precip_50), na.rm = T),
                                 na.color = "transparent")
 
-names = c("30 Quanitle (in)", "50 Quanitle (in)")
+names = c("30th Percentile [in]", "50th Percentile (median) [in]")
 
-base_map()%>%
+map = base_map()%>%
   leaflet::addRasterImage(precip_30, colors = pal_30, opacity = 0.8, group = names[1], project = FALSE)%>%
   leaflet::addRasterImage(precip_50, colors = pal_50, opacity = 0.8, group = names[2], project = FALSE)%>%
   leaflet::addLegend(group = names[1], pal = pal_30,
@@ -141,7 +143,10 @@ base_map()%>%
                      values = min(values(precip_50), na.rm = T):max(values(precip_50), na.rm = T),
                      position = "bottomleft")%>%
   leaflet::addLayersControl(position = "topleft",
-                            baseGroups = names,
-                            overlayGroups = c("States"),
-                            options = leaflet::layersControlOptions(collapsed = FALSE))
+                            overlayGroups = names,
+                            baseGroups = c("States"),
+                            options = leaflet::layersControlOptions(collapsed = FALSE))%>%
+  leaflet::hideGroup(names[2])
+
+htmlwidgets::saveWidget(map, "~/MCO/data_output/precip_probs.html", selfcontained = T)
 
