@@ -104,6 +104,14 @@ values(precip_50) = precip_quantiles_50
 precip_30 = precip_30/25.4
 precip_50 = precip_50/25.4
 
+#write GeoTiff
+writeRaster(precip_30, "~/MCO/data_output/montana_30_percent_propability.tif", format = "GTiff", overwrite = T)
+writeRaster(precip_50, "~/MCO/data_output/montana_50_percent_propability.tif", format = "GTiff", overwrite = T)
+
+#set upper bounds
+values(precip_30)[values(precip_30) > 10] = 10
+values(precip_50)[values(precip_50) > 10] = 10
+
 #compute color ramp for visualization
 color_ramp = colorRampPalette(c("darkred","red", "white", "blue", "darkblue"))
 
@@ -114,39 +122,39 @@ plot(precip_30, col = color_ramp(100),
 plot(precip_50, col = color_ramp(100), 
      main = "50% Quantile Precip Sum (05/01 - 07/31)")
 
-#write GeoTiff
-writeRaster(precip_30, "~/MCO/data_output/montana_30_percent_propability.tif", format = "GTiff", overwrite = T)
-writeRaster(precip_50, "~/MCO/data_output/montana_50_percent_propability.tif", format = "GTiff", overwrite = T)
-
 source("~/MCO/R/base_map.R")
 
 ramp = c('#d73027','#f46d43','#fdae61','#fee090','#ffffbf','#e0f3f8','#abd9e9','#74add1','#4575b4')
 
-pal_30 <- leaflet::colorNumeric(ramp, 
-                                min(values(precip_30), na.rm = T):max(values(precip_30), na.rm = T),
-                                na.color = "transparent")
-pal_50 <- leaflet::colorNumeric(ramp, 
-                                min(values(precip_50), na.rm = T):max(values(precip_50), na.rm = T),
-                                na.color = "transparent")
+pal1 <- leaflet::colorBin(ramp, 
+                         domain = NULL,
+                         bins = c(3:9,20),
+                         na.color = "transparent")
 
 names = c("30th Percentile [in]", "50th Percentile (median) [in]")
 
 map = base_map()%>%
-  leaflet::addRasterImage(precip_30, colors = pal_30, opacity = 0.8, group = names[1], project = FALSE)%>%
-  leaflet::addRasterImage(precip_50, colors = pal_50, opacity = 0.8, group = names[2], project = FALSE)%>%
-  leaflet::addLegend(group = names[1], pal = pal_30,
-            title = names[1],
-            values = min(values(precip_30), na.rm = T):max(values(precip_30), na.rm = T),
+  leaflet::addRasterImage(precip_30, colors = pal1, opacity = 0.8, group = names[1], project = TRUE)%>%
+  leaflet::addRasterImage(precip_50, colors = pal1, opacity = 0.8, group = names[2], project = TRUE)%>%
+  
+  
+  leaflet::addLegend(group = names[1], pal = pal1,
+            title = paste0(names[1], "<br>May 1 - July 31<br>(1979-2019)"),
+            values = c(3:9,20),
             position = "bottomleft")%>%
-  leaflet::addLegend(group = names[2], pal = pal_50,
-                     title = names[2],
-                     values = min(values(precip_50), na.rm = T):max(values(precip_50), na.rm = T),
+  
+  leaflet::addLegend(group = names[2], pal = pal1,
+                     title = paste0(names[2], "<br>May 1 - July 31<br>(1979-2019)"),
+                     values = c(3:9,20),
                      position = "bottomleft")%>%
+  
   leaflet::addLayersControl(position = "topleft",
                             overlayGroups = names,
                             baseGroups = c("States"),
                             options = leaflet::layersControlOptions(collapsed = FALSE))%>%
   leaflet::hideGroup(names[2])
+
+map
 
 htmlwidgets::saveWidget(map, "~/MCO/data_output/precip_probs.html", selfcontained = T)
 
