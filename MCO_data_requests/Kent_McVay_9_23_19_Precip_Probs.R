@@ -137,11 +137,7 @@ source("~/MCO/R/base_map.R")
 #import counties 
 counties = rgdal::readOGR("~/MCO/shp/mt_counties.shp")
 
-<<<<<<< HEAD
 counties_simple = rgeos::gSimplify(counties, tol = 0.001, topologyPreserve = TRUE)
-=======
-counties_simple = rgeos::gSimplify(counties, tol = 0.01, topologyPreserve = TRUE)
->>>>>>> a02c35045d3ca4440e9968e728a4e5eb7bbf7fc6
 
 ramp = c('#d73027','#f46d43','#fdae61','#fee090','#ffffbf','#e0f3f8','#abd9e9','#74add1','#4575b4', "#00008b", "#2E0854")
 
