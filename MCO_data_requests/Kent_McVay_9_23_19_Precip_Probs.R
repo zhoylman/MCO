@@ -134,11 +134,16 @@ for(i in 1:length(functions)){
 #plot leaflet
 source("~/MCO/R/base_map.R")
 
-ramp = c('#d73027','#f46d43','#fdae61','#fee090','#ffffbf','#e0f3f8','#abd9e9','#74add1','#4575b4', "#00008b")
+#import counties 
+counties = rgdal::readOGR("~/MCO/shp/mt_counties.shp")
+
+counties_simple = rgeos::gSimplify(counties, tol = 0.01, topologyPreserve = TRUE)
+
+ramp = c('#d73027','#f46d43','#fdae61','#fee090','#ffffbf','#e0f3f8','#abd9e9','#74add1','#4575b4', "#00008b", "#2E0854")
 
 pal1 <- leaflet::colorBin(ramp, 
                          domain = NULL,
-                         bins = c(seq(1,6,1), seq(7,15,2),c(20,25,30)),
+                         bins = c(seq(1,9,1), seq(11,15,2),c(20,25,30)),
                          na.color = "transparent")
 
 names = c("10th Percentile [in] (very dry year)","30th Percentile [in] (dry year)", 
@@ -154,14 +159,15 @@ for(i in 1: length(names)){
 map = map %>% 
   leaflet::addLegend(pal = pal1,
             title = "May 1 - July 31<br>(1979-2019)",
-            values = c(seq(1,6,1), seq(7,15,2),c(20,25,30)),
+            values = c(seq(1,9,1), seq(11,15,2),c(20,25,30)),
             position = "bottomleft")%>%
-  
+  leaflet::addPolygons(data = counties_simple, group = "Counties", fillColor = "transparent", weight = 2, color = "black", opacity = 1)%>%
   leaflet::addLayersControl(position = "topleft",
                             baseGroups = names,
-                            overlayGroups = c("States"),
+                            overlayGroups = c("States", "Counties"),
                             options = leaflet::layersControlOptions(collapsed = FALSE))%>%
   leaflet::hideGroup(names[c(1,2,4,5)])
+
 
 map
 
