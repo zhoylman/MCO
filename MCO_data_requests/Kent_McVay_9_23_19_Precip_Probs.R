@@ -71,19 +71,43 @@ for(i in 1:length(unique(group_by_vec))){
   integrated_precip[,i] = values(raster_precip_clipped[[i]])
 }
 
-quantile_30 = function(x){
-  temp = quantile(x,0.3, na.rm = T)
-  return(temp)
-}
-
-quantile_50 = function(x){
-  temp = quantile(x,0.5, na.rm = T)
-  return(temp)
+ # quantile fucntions
+{
+  quantile_10 = function(x){
+    temp = quantile(x,0.1, na.rm = T)
+    return(temp)
+  }
+  
+  quantile_30 = function(x){
+    temp = quantile(x,0.3, na.rm = T)
+    return(temp)
+  }
+  
+  quantile_50 = function(x){
+    temp = quantile(x,0.5, na.rm = T)
+    return(temp)
+  }
+  
+  quantile_70 = function(x){
+    temp = quantile(x,0.7, na.rm = T)
+    return(temp)
+  }
+  
+  quantile_90 = function(x){
+    temp = quantile(x,0.9, na.rm = T)
+    return(temp)
+  } 
 }
 
 #calcualte precipitation qunatiles
-precip_quantiles_30 = parApply(cl,integrated_precip, 1, FUN = quantile_30)
-precip_quantiles_50 = parApply(cl,integrated_precip, 1, FUN = quantile_50)
+functions = c("quantile_10","quantile_30","quantile_50",
+              "quantile_70","quantile_90")
+
+precip_quantiles = list()
+for(i in 1:length(functions)){
+  precip_quantiles[[i]] = parApply(cl,integrated_precip, 1, FUN = functions[i])
+}
+
 
 #stop parellel cluster
 stopCluster(cl)
@@ -92,56 +116,64 @@ stopCluster(cl)
 ############## RASTER FILE #################
 ############################################
 
-#create spatial template for quantile values
-precip_30 = raster_precip_clipped[[1]]
-precip_50 = raster_precip_clipped[[1]]
+precip = list()
 
-#allocate quantile values to spatial template
-values(precip_30) = precip_quantiles_30
-values(precip_50) = precip_quantiles_50
+for(i in 1:length(functions)){
+  #create spatial template for quantile values
+  precip[[i]] = raster_precip_clipped[[1]]
+  #allocate quantile values to spatial template
+  values(precip[[i]]) = precip_quantiles[[i]]
+  #convert to in
+  precip[[i]] = precip[[i]]/25.4
+  #write GeoTiff
+  writeRaster(precip[[i]], paste0("~/MCO/data_output/montana_", functions[i],".tif"), format = "GTiff", overwrite = T)
+  #set max values
+  #values(precip[[i]])[values(precip[[i]]) > 15] = 15
+}
 
-#convert to in
-precip_30 = precip_30/25.4
-precip_50 = precip_50/25.4
-
-#compute color ramp for visualization
-color_ramp = colorRampPalette(c("darkred","red", "white", "blue", "darkblue"))
-
-#plot map
-plot(precip_30, col = color_ramp(100), 
-     main = "30% Quantile Precip Sum (05/01 - 07/31)")
-
-plot(precip_50, col = color_ramp(100), 
-     main = "50% Quantile Precip Sum (05/01 - 07/31)")
-
-#write GeoTiff
-writeRaster(precip_30, "~/MCO/data_output/montana_30_percent_propability.tif", format = "GTiff", overwrite = T)
-writeRaster(precip_50, "~/MCO/data_output/montana_50_percent_propability.tif", format = "GTiff", overwrite = T)
-
+#plot leaflet
 source("~/MCO/R/base_map.R")
 
-pal_30 <- leaflet::colorNumeric(c("#8b0000", "#ff0000", "#ffffff", "#0000ff", "#000d66"), 
-                                min(values(precip_30), na.rm = T):max(values(precip_30), na.rm = T),
-                                na.color = "transparent")
-pal_50 <- leaflet::colorNumeric(c("#8b0000", "#ff0000", "#ffffff", "#0000ff", "#000d66"), 
-                                min(values(precip_50), na.rm = T):max(values(precip_50), na.rm = T),
-                                na.color = "transparent")
+#import counties 
+counties = rgdal::readOGR("~/MCO/shp/mt_counties.shp")
 
-names = c("30 Quanitle (in)", "50 Quanitle (in)")
+<<<<<<< HEAD
+counties_simple = rgeos::gSimplify(counties, tol = 0.001, topologyPreserve = TRUE)
+=======
+counties_simple = rgeos::gSimplify(counties, tol = 0.01, topologyPreserve = TRUE)
+>>>>>>> a02c35045d3ca4440e9968e728a4e5eb7bbf7fc6
 
-base_map()%>%
-  leaflet::addRasterImage(precip_30, colors = pal_30, opacity = 0.8, group = names[1], project = FALSE)%>%
-  leaflet::addRasterImage(precip_50, colors = pal_50, opacity = 0.8, group = names[2], project = FALSE)%>%
-  leaflet::addLegend(group = names[1], pal = pal_30,
-            title = names[1],
-            values = min(values(precip_30), na.rm = T):max(values(precip_30), na.rm = T),
+ramp = c('#d73027','#f46d43','#fdae61','#fee090','#ffffbf','#e0f3f8','#abd9e9','#74add1','#4575b4', "#00008b", "#2E0854")
+
+pal1 <- leaflet::colorBin(ramp, 
+                         domain = NULL,
+                         bins = c(seq(1,9,1), seq(11,15,2),c(20,25,30)),
+                         na.color = "transparent")
+
+names = c("10th Percentile [in] (very dry year)","30th Percentile [in] (dry year)", 
+          "50th Percentile [in] (average year)", "70th Percentile [in] (wet year)", "90th Percentile [in] (very wet year)")
+
+map = base_map()
+
+for(i in 1: length(names)){
+  map = map %>% 
+        leaflet::addRasterImage(precip[[i]], colors = pal1, opacity = 0.8, group = names[i], project = TRUE)
+}
+  
+map = map %>% 
+  leaflet::addLegend(pal = pal1,
+            title = "May 1 - July 31<br>(1979-2019)",
+            values = c(seq(1,9,1), seq(11,15,2),c(20,25,30)),
             position = "bottomleft")%>%
-  leaflet::addLegend(group = names[2], pal = pal_50,
-                     title = names[2],
-                     values = min(values(precip_50), na.rm = T):max(values(precip_50), na.rm = T),
-                     position = "bottomleft")%>%
+  leaflet::addPolygons(data = counties_simple, group = "Counties", fillColor = "transparent", weight = 2, color = "black", opacity = 1)%>%
   leaflet::addLayersControl(position = "topleft",
                             baseGroups = names,
-                            overlayGroups = c("States"),
-                            options = leaflet::layersControlOptions(collapsed = FALSE))
+                            overlayGroups = c("States", "Counties"),
+                            options = leaflet::layersControlOptions(collapsed = FALSE))%>%
+  leaflet::hideGroup(names[c(1,2,4,5)])
+
+
+map
+
+htmlwidgets::saveWidget(map, "~/MCO/data_output/precip_probs.html", selfcontained = T)
 

@@ -9,7 +9,7 @@ base_map = function(x){
     leaflet::addTiles("https://maps.tilehosting.com/data/hillshades/{z}/{x}/{y}.png?key=KZO7rAv96Alr8UVUrd4a") %>%
     leaflet::addProviderTiles("Stamen.TonerLines") %>%
     leaflet::addProviderTiles("Stamen.TonerLabels") %>%
-    leaflet::setView(lng = -108, lat = 45.5, zoom = 6) %>%
+    leaflet::setView(lng = -109.5, lat = 47, zoom = 7) %>%
     leaflet::addPolygons(data = states, group = "States", fillColor = "transparent", weight = 2, color = "black", opacity = 1)%>%
     leaflet::addLayersControl(position = "topleft",
                      overlayGroups = c("States"),
