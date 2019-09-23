@@ -128,7 +128,7 @@ ramp = c('#d73027','#f46d43','#fdae61','#fee090','#ffffbf','#e0f3f8','#abd9e9','
 
 pal1 <- leaflet::colorBin(ramp, 
                          domain = NULL,
-                         bins = c(3:9,20),
+                         bins = c(2:9,20),
                          na.color = "transparent")
 
 names = c("30th Percentile [in]", "50th Percentile (median) [in]")
@@ -140,12 +140,12 @@ map = base_map()%>%
   
   leaflet::addLegend(group = names[1], pal = pal1,
             title = paste0(names[1], "<br>May 1 - July 31<br>(1979-2019)"),
-            values = c(3:9,20),
+            values = c(2:9,20),
             position = "bottomleft")%>%
   
   leaflet::addLegend(group = names[2], pal = pal1,
                      title = paste0(names[2], "<br>May 1 - July 31<br>(1979-2019)"),
-                     values = c(3:9,20),
+                     values = c(2:9,20),
                      position = "bottomleft")%>%
   
   leaflet::addLayersControl(position = "topleft",
