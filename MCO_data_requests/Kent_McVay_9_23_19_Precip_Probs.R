@@ -24,7 +24,7 @@ library(spdplyr)
 var="precipitation_amount"
 
 raster_precip = brick("http://thredds.northwestknowledge.net:8080/thredds/dodsC/agg_met_pr_1979_CurrentYear_CONUS.nc", var= var)
-#proj4string(raster_precip) = CRS("+init=EPSG:4326")
+proj4string(raster_precip) = CRS("+init=EPSG:4326")
 
 #import UMRB outline for clipping and watershed for aggregating
 states = rgdal::readOGR("~/MCO/shp/states.shp")
