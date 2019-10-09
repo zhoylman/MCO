@@ -24,7 +24,7 @@ library(spdplyr)
 var="precipitation_amount"
 
 raster_precip = brick("http://thredds.northwestknowledge.net:8080/thredds/dodsC/agg_met_pr_1979_CurrentYear_CONUS.nc", var= var)
-proj4string(raster_precip) = CRS("+init=EPSG:4326")
+#proj4string(raster_precip) = CRS("+init=EPSG:4326")
 
 #import UMRB outline for clipping and watershed for aggregating
 states = rgdal::readOGR("~/MCO/shp/states.shp")
@@ -131,6 +131,12 @@ for(i in 1:length(functions)){
   #values(precip[[i]])[values(precip[[i]]) > 15] = 15
 }
 
+time_2017 = which(time$datetime >= as.Date("2017-05-01") & time$datetime <= as.Date("2017-07-31"))
+precip_2017 = sum(raster_precip_spatial_clip[[time_2017]]) %>%
+  mask(., montana)
+
+precip_2017 = precip_2017/25.4
+
 #plot leaflet
 source("~/MCO/R/base_map.R")
 
@@ -141,7 +147,7 @@ counties_simple = rgeos::gSimplify(counties, tol = 0.001, topologyPreserve = TRU
 
 ramp = c('#d73027','#f46d43','#fdae61','#fee090','#ffffbf','#e0f3f8','#abd9e9','#74add1','#4575b4', "#00008b", "#2E0854")
 
-bins = c(seq(1,9,1), seq(11,15,2),c(20,25,30))
+bins = c(seq(0,9,1), seq(11,15,2),c(20,25,30))
 
 pal1 <- leaflet::colorBin(ramp, 
                          domain = NULL,
@@ -153,27 +159,26 @@ names = c("10th Percentile [in] (very dry year)","30th Percentile [in] (dry year
 
 map = base_map()
 
-for(i in 1: length(names)){
+for(i in 1:length(names)){
   map = map %>% 
         leaflet::addRasterImage(precip[[i]], colors = pal1, opacity = 0.8, group = names[i], project = TRUE)
 }
   
 map = map %>% 
+  leaflet::addRasterImage(precip_2017, colors = pal1, opacity = 0.8, group = "2017", project = TRUE)%>%
   leaflet::addLegend(pal = pal1,
-            title = "May 1 - July 31<br>(1979-2019)",
-            values = bins,
-            position = "bottomleft")%>%
+                     title = "May 1 - July 31<br>(1979-2019)",
+                     values = bins,
+                     position = "bottomleft")%>%
   leaflet::addPolygons(data = counties_simple, group = "Counties", fillColor = "transparent", weight = 2, color = "black", opacity = 1)%>%
   leaflet::addLayersControl(position = "topleft",
-                            baseGroups = names,
+                            baseGroups = c(names[c(3,1,2,4,5)], "2017"),
                             overlayGroups = c("States", "Counties"),
-                            options = leaflet::layersControlOptions(collapsed = FALSE))%>%
-  leaflet::hideGroup(names[c(1,2,4,5)])
-
+                            options = leaflet::layersControlOptions(collapsed = FALSE))
 
 map
 
-htmlwidgets::saveWidget(map, "~/MCO/data_output/precip_probs.html", selfcontained = T)
+htmlwidgets::saveWidget(map, "~/MCO/data_output/precip_probs_w_2107_median_first.html", selfcontained = T)
 
 library(ggplot2)
 
