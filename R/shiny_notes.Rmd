@@ -346,7 +346,7 @@ shinyApp(ui <- fluidPage(
   # this is our map that we will display
   output$mymap <- renderLeaflet({
     leaflet() %>%
-    # this is the base map
+    # this is the base map  
     leaflet::addProviderTiles("Stamen.Toner") %>%
     # terrain tiles
     leaflet::addTiles("https://maps.tilehosting.com/data/hillshades/{z}/{x}/{y}.png?key=KZO7rAv96Alr8UVUrd4a") %>%
