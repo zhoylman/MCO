@@ -1,7 +1,7 @@
 ---
 title: "A Tutorial on Shiny and Leaflet"
 author: "Zachary Hoylman"
-date: "11/5/2019"
+date: "11/14/2019"
 output: pdf_document
 ---
 
@@ -9,16 +9,20 @@ output: pdf_document
 knitr::opts_chunk$set(echo = TRUE)
 ```
 
-# Shiny: Introduction, installation and example
+# Set up and download required packages
+
+Before we begin, let's install all the packages we will use thoughout this lecture.
+
+```{r eval = FALSE}
+install.packages(c("knitr", "shiny", "leaflet","ncdf4", "lubridate", "dplyr",
+                   "zoo", "ggplot2", "scales", "leaflet.extras"))
+```
+
+# Shiny: Introduction and example
 
 Shiny is an R package that makes it easy to build interactive web applications (apps) straight from R. This lesson will get you started building Shiny apps right away.
 
-If you still haven’t installed the Shiny package, open an R session, connect to the internet, and run
-```{r eval = FALSE}
-install.packages("shiny")
-```
-
-First lets run a shiny app example that comes with shiny to understand what apps, in a very very very simple form, are.
+First lets run a shiny app example that comes with shiny to understand what apps are (in a very very very simple form).
 
 ```{r eval = FALSE}
 library(shiny)
@@ -29,7 +33,6 @@ runExample("01_hello")
 There are two main components to a shiny app, a User Interface (UI) and a server. The UI is used to pass arguments to the server script which conducts the operations. These two parts of the app can either be contained in two separate scripts (ui.R and server.R) or can be combined in a single script that has both components. 
 
 ```{r eval = FALSE}
-
 shinyApp(ui = defines the user interface,
          server = define the operations being conducted and does things like plotting)
 
@@ -156,7 +159,8 @@ shinyApp(ui = fluidPage(
     model = with(data,lm(y ~ poly(x,input$obs)))
     # predict data out for plotting
     predict_data = data.frame(x = seq(min(data$x), max(data$x), length.out = 1000))
-    predicted.intervals = data.frame(predict(model, newdata = predict_data, , interval = "confidence"))
+    predicted.intervals = data.frame(predict(model, newdata = predict_data,
+                                             interval = "confidence"))
     # extract some inforamtion from the lm for the plot
     summary = summary(model)
     # build the plot itself
@@ -180,12 +184,6 @@ Bingo! We have a working multivariate app that allows for some data analysis. At
 Leaflet is a very powerful library that allows for interactive mapping. A lot of research in the natural sciences has a spatial component and often we rely on graphical user interfaces to produce visualizations of our data. Think ESRI ArcGIS. In some cases, making quick maps for visualizing can be a pain and sometimes you want a product that is interactive for the end user without them having to have access to a GIS platform. 
 
 With this I present Leaflet, an open-source JavaScript library for mobile-friendly interactive maps. But... Now we have a R library that brings this powerful mapping service to R users without having to code in JavaScript (except for customization).
-
-Lets install the package. 
-
-``` {r eval = FALSE}
-install.packages("leaflet")
-```
 
 ## Quick Note!
 
@@ -248,7 +246,8 @@ data_from_the_field = data.frame(names = c("Site 1", "Site 2", "Site 3"),
 leaflet() %>%
   addProviderTiles(providers$Esri.NatGeoWorldMap) %>%
   setView(lat = 46.875676, lng = -113.991386, zoom = 13) %>%
-  addMarkers(data_from_the_field$long, data_from_the_field$lat, popup = data_from_the_field$names)
+  addMarkers(data_from_the_field$long, data_from_the_field$lat, 
+             popup = data_from_the_field$names)
 ```
 
 # Mixing Leaflet and Shiny
@@ -256,8 +255,6 @@ leaflet() %>%
 This is where things get really cool. Coupling custom functions with geospatial information from leaflet and using the reactive capabilities of Shiny yield some seriously powerful tools. For example, a question I get a lot working in the climate office is "home much precipitation does [insert place here] get". I am going to share with you a tool that can answer that question for any location in the continental U.S. using gridMET data produced by the University of Idaho.  
 
 ``` {r eval = FALSE}
-install.packages(c("ncdf4", "lubridate", "dplyr", "zoo", "ggplot2", "scales", "leaflet.extras"))
-
 library(ncdf4)
 library(lubridate)
 library(dplyr)
@@ -265,64 +262,38 @@ library(zoo)
 library(ggplot2)
 library(scales)
 
-precip_plot = function(lat_in, lon_in){
-  lat_of_interest = lat_in
-  lon_of_interest = lon_in
-  
-  ### DEFINE THE URL to net cdf
-  urltotal<-"http://thredds.northwestknowledge.net:8080/thredds/dodsC/agg_met_pr_1979_CurrentYear_CONUS.nc"
-  
-  ## OPEN THE FILE
-  nc <- nc_open(urltotal)
-  
-  ## NOTE: FILE DIMENSIONS ARE lon,lat,time
-  v3 <- nc$var[[1]]
-  lonsize <- v3$varsize[1]
-  latsize <- v3$varsize[2] 
-  endcount <- v3$varsize[3] 
-  
-  ### DEFINE OUR POINT OF INTEREST 
+get_precip = function(lat_in, lon_in){
+  #Define URL to net cdf 
+  urltotal = "http://thredds.northwestknowledge.net:8080/thredds/dodsC/agg_met_pr_1979_CurrentYear_CONUS.nc"
+  # OPEN THE FILE
+  nc = nc_open(urltotal)
+  # find length of time variable for extraction
+  endcount = nc$var[[1]]$varsize[3] 
+  # Querry the lat lon matrix
   lon_matrix = nc$var[[1]]$dim[[1]]$vals
   lat_matrix = nc$var[[1]]$dim[[2]]$vals
-  
-  #find lat long that corispond
-  lon=which(abs(lon_matrix-lon_of_interest)==min(abs(lon_matrix-lon_of_interest)))  
-  lat=which(abs(lat_matrix-lat_of_interest)==min(abs(lat_matrix-lat_of_interest))) 
-  
-  ## DEFINE OUR VARIABLE NAME 
+  # find lat long that corispond
+  lon=which(abs(lon_matrix-lon_in)==min(abs(lon_matrix-lon_in)))  
+  lat=which(abs(lat_matrix-lat_in)==min(abs(lat_matrix-lat_in))) 
+  # define variable name
   var="precipitation_amount"
-  
-  ## READ THE DATA VARIABLE 
-  data <- ncvar_get(nc, var, start=c(lon,lat,1),count=c(1,1,endcount))
-  ## READ THE TIME VARIABLE
-  time <- ncvar_get(nc, "day", start=c(1),count=c(endcount))
-  ## CONVERT TIME FROM "days since 1900-01-01" TO YYYY-MM-DD
-  time=as.Date(time, origin="1900-01-01") 
-  # PUT EVERYTHING INTO A DATA FRAME
-  data <- data.frame(time,data)
-  
-  ## CLOSE THE FILE
+  # read data and time and extract useful time information
+  data = data.frame(data = ncvar_get(nc, var, start=c(lon,lat,1),count=c(1,1,endcount))) %>%
+    mutate(time = as.Date(ncvar_get(nc, "day", start=c(1),count=c(endcount)), origin="1900-01-01")) %>%
+    mutate(day = yday(time)) %>%
+    mutate(year = year(time)) %>%
+    mutate(month = month(time, label = T, abbr = F))
+  # close file
   nc_close(nc)
-  
-  #define some date based variables
-  data$day = yday(data$time)
-  data$year = year(data$time)
-  data$month = month(data$time, label = T, abbr = F)
-  
-  monthly_average = data %>%
-    group_by(month,year) %>%
-    dplyr::summarise(sum = sum(data))%>%
-    group_by(month) %>%
-    dplyr::summarise(mean = mean(sum))
   
   #monthly data
   monthly_data = data %>%
     group_by(month, year) %>%
     dplyr::summarise(sum = sum(data)) %>%
-    #mutate(monthly_percent = sum/monthly_average$mean) %>%
-    mutate(time = as.POSIXct(as.Date(as.yearmon(paste(year, month, sep = "-"), '%Y-%b'))))%>%
+    mutate(time = as.POSIXct(as.Date(as.yearmon(paste(year, month, sep = "-"),
+                                                '%Y-%b')))) %>%
     arrange(time) 
-     
+  # define ggplot function to display 3 years of data
   plot_function = function(data){
     precip_plot = ggplot(data = data, aes(x = time, y = sum))+
       geom_bar(stat = 'identity', fill = "blue")+
@@ -330,59 +301,99 @@ precip_plot = function(lat_in, lon_in){
       ylab("Precipitation (mm/month)")+
       theme_bw(base_size = 16)+
       ggtitle("")+
-      # geom_text(data = data, aes(x = time, y = monthly_sum, label = paste(percent_average,'%',sep = "")),
-      #           nudge_y = 20, size = 3)+
       theme(legend.position="none",
             axis.text.x = element_text(angle = 60, vjust = 0.5))+
       scale_x_datetime(breaks = date_breaks("3 month"), labels=date_format("%b / %Y"),
-                       limits= as.POSIXct(c(data$time[length(data$time)-36], data$time[length(data$time)]))) #add perfect amount of time for clean plotting
+                       limits= as.POSIXct(c(data$time[length(data$time)-36], 
+                                            data$time[length(data$time)]))) 
     return(precip_plot)
   }
-  final_plot = plot_function(monthly_data)
-  return(final_plot)
+  # return a list of 3 things, the plot (using the function above), daily daya and monthly data
+  return(list(final_plot = plot_function(monthly_data), 
+              daily_data = data.frame(time = data$time, precipitation_mm = data$data),
+              monthly_data = data.frame(month = monthly_data$month, 
+                                        year = monthly_data$year,
+                                        precipitation_mm = monthly_data$sum)))
 }
 
 ```
 
-Now using this custom function, leaflet and shiny, lets make a map that allows a user to click on a location and recive a preciptation plot. 
+Now using this custom function, leaflet and shiny, lets make a map that allows a user to click on a location and recive a preciptation plot and download 40+ years of data (both daily and monthly). 
 
 ``` {r eval = FALSE}
 library(shiny)
 library(leaflet)
 library(leaflet.extras)
-shinyApp(ui <- fluidPage(
-  verticalLayout(),
-  leafletOutput("mymap"),
-  conditionalPanel(condition="$('html').hasClass('shiny-busy')",
-                                   tags$div("Calculating Climatology...",id="loadmessage")),
-  plotOutput("plot", width = "100%", height = "300px") 
-  ),
+library(ncdf4)
 
+shinyApp(ui <- fluidPage(
+  # build our UI defining that we want a vertical layout
+  verticalLayout(),
+  # first we want to display the map
+  leafletOutput("mymap"),
+  # add in a conditional message for when calculations are running. 
+  conditionalPanel(condition="$('html').hasClass('shiny-busy')",
+                                   tags$div("Calculating Climatology...",
+                                            id="loadmessage")),
+  # display our precip plot
+  plotOutput("plot", width = "100%", height = "300px"),
+  # set up download buttons for the user to download data
+  downloadButton("downloadDaily", "Download Daily Data (1979 - Present)"),
+  downloadButton("downloadMonthly", "Download Monthly Data (1979 - Present)")
+  ),
+  # now on to the server
   server <- function(input, output, session) {
+  # this is our map that we will display
   output$mymap <- renderLeaflet({
     leaflet() %>%
+    # this is the base map
     leaflet::addProviderTiles("Stamen.Toner") %>%
+    # terrain tiles
     leaflet::addTiles("https://maps.tilehosting.com/data/hillshades/{z}/{x}/{y}.png?key=KZO7rAv96Alr8UVUrd4a") %>%
+    # lines and labels
     leaflet::addProviderTiles("Stamen.TonerLines") %>%
     leaflet::addProviderTiles("Stamen.TonerLabels") %>%
+    # set default viewing location and zoom
     leaflet::setView(lng = -97.307564, lat = 40.368971, zoom = 4) %>%
+    # modify some parameters (what tools are displayed with the map)
       leaflet.extras::addDrawToolbar(markerOptions = drawMarkerOptions(),
-                   polylineOptions = FALSE,
-                   polygonOptions = FALSE,
-                   circleOptions = FALSE,
-                   rectangleOptions = FALSE,
-                   circleMarkerOptions = FALSE,
-                   editOptions = FALSE,
-                   singleFeature = FALSE,
-                   targetGroup='draw')
+                   polylineOptions = FALSE, polygonOptions = FALSE,
+                   circleOptions = FALSE, rectangleOptions = FALSE,
+                   circleMarkerOptions = FALSE, editOptions = FALSE,
+                   singleFeature = FALSE, targetGroup='draw')
   })
-  
+  # Now for our reactive portion which is when the user drops a pin on the map
   observeEvent(input$mymap_draw_new_feature,{
-      feature <- input$mymap_draw_new_feature
-      print(c(feature$geometry$coordinates[[2]],feature$geometry$coordinates[[1]]))
+      # create a variable "feature" that will be overwritten when pin drops
+      feature = input$mymap_draw_new_feature
+      # call our precip function and store the outputs as a variable
+      function_out = get_precip(feature$geometry$coordinates[[2]],
+                                feature$geometry$coordinates[[1]])
+      # render the plot from our function output
       output$plot <- renderPlot({
-        precip_plot(feature$geometry$coordinates[[2]],feature$geometry$coordinates[[1]])
+        function_out[[1]]
       })
+      # render the daily data output from our function to a csv for download 
+      # with a reactive name (lat long)
+      output$downloadDaily <- downloadHandler(
+        filename = function() {
+          paste("daily_precip_",round(feature$geometry$coordinates[[2]],4),"_",
+                round(feature$geometry$coordinates[[1]],4),".csv", sep = "")
+        },
+        content = function(file) {
+          write.csv(function_out$daily_data, file, row.names = FALSE)
+        }
+      )
+      # render the monthly data output again with a reactive name
+      output$downloadMonthly <- downloadHandler(
+        filename = function() {
+          paste("monthly_sum_precip_",round(feature$geometry$coordinates[[2]],4),"_",
+                round(feature$geometry$coordinates[[1]],4),".csv", sep = "")
+        },
+        content = function(file) {
+          write.csv(function_out$monthly_data, file, row.names = FALSE)
+        }
+      )
     })
 })
 
