@@ -256,9 +256,15 @@ leaflet() %>%
 This is where things get really cool. Coupling custom functions with geospatial information from leaflet and using the reactive capabilities of Shiny yield some seriously powerful tools. For example, a question I get a lot working in the climate office is "home much precipitation does [insert place here] get". I am going to share with you a tool that can answer that question for any location in the continental U.S. using gridMET data produced by the University of Idaho.  
 
 ``` {r eval = FALSE}
+install.packages(c("ncdf4", "lubridate", "dplyr", "zoo", "ggplot2", "scales", "leaflet.extras"))
+
 library(ncdf4)
 library(lubridate)
 library(dplyr)
+library(zoo)
+library(ggplot2)
+library(scales)
+
 precip_plot = function(lat_in, lon_in){
   lat_of_interest = lat_in
   lon_of_interest = lon_in
@@ -301,20 +307,85 @@ precip_plot = function(lat_in, lon_in){
   #define some date based variables
   data$day = yday(data$time)
   data$year = year(data$time)
-  data$month = month(data$time, label = T)
+  data$month = month(data$time, label = T, abbr = F)
+  
+  monthly_average = data %>%
+    group_by(month,year) %>%
+    dplyr::summarise(sum = sum(data))%>%
+    group_by(month) %>%
+    dplyr::summarise(mean = mean(sum))
   
   #monthly data
   monthly_data = data %>%
     group_by(month, year) %>%
     dplyr::summarise(sum = sum(data)) %>%
-    mutate(strptime(paste(year, month, sep = "-"), format = '%Y-%b'))
+    #mutate(monthly_percent = sum/monthly_average$mean) %>%
+    mutate(time = as.POSIXct(as.Date(as.yearmon(paste(year, month, sep = "-"), '%Y-%b'))))%>%
+    arrange(time) 
      
-  
+  plot_function = function(data){
+    precip_plot = ggplot(data = data, aes(x = time, y = sum))+
+      geom_bar(stat = 'identity', fill = "blue")+
+      xlab("")+
+      ylab("Precipitation (mm/month)")+
+      theme_bw(base_size = 16)+
+      ggtitle("")+
+      # geom_text(data = data, aes(x = time, y = monthly_sum, label = paste(percent_average,'%',sep = "")),
+      #           nudge_y = 20, size = 3)+
+      theme(legend.position="none",
+            axis.text.x = element_text(angle = 60, vjust = 0.5))+
+      scale_x_datetime(breaks = date_breaks("3 month"), labels=date_format("%b / %Y"),
+                       limits= as.POSIXct(c(data$time[length(data$time)-36], data$time[length(data$time)]))) #add perfect amount of time for clean plotting
+    return(precip_plot)
+  }
+  final_plot = plot_function(monthly_data)
+  return(final_plot)
 }
 
 ```
 
+Now using this custom function, leaflet and shiny, lets make a map that allows a user to click on a location and recive a preciptation plot. 
 
 ``` {r eval = FALSE}
+library(shiny)
+library(leaflet)
+library(leaflet.extras)
+shinyApp(ui <- fluidPage(
+  verticalLayout(),
+  leafletOutput("mymap"),
+  conditionalPanel(condition="$('html').hasClass('shiny-busy')",
+                                   tags$div("Calculating Climatology...",id="loadmessage")),
+  plotOutput("plot", width = "100%", height = "300px") 
+  ),
+
+  server <- function(input, output, session) {
+  output$mymap <- renderLeaflet({
+    leaflet() %>%
+    leaflet::addProviderTiles("Stamen.Toner") %>%
+    leaflet::addTiles("https://maps.tilehosting.com/data/hillshades/{z}/{x}/{y}.png?key=KZO7rAv96Alr8UVUrd4a") %>%
+    leaflet::addProviderTiles("Stamen.TonerLines") %>%
+    leaflet::addProviderTiles("Stamen.TonerLabels") %>%
+    leaflet::setView(lng = -97.307564, lat = 40.368971, zoom = 4) %>%
+      leaflet.extras::addDrawToolbar(markerOptions = drawMarkerOptions(),
+                   polylineOptions = FALSE,
+                   polygonOptions = FALSE,
+                   circleOptions = FALSE,
+                   rectangleOptions = FALSE,
+                   circleMarkerOptions = FALSE,
+                   editOptions = FALSE,
+                   singleFeature = FALSE,
+                   targetGroup='draw')
+  })
+  
+  observeEvent(input$mymap_draw_new_feature,{
+      feature <- input$mymap_draw_new_feature
+      print(c(feature$geometry$coordinates[[2]],feature$geometry$coordinates[[1]]))
+      output$plot <- renderPlot({
+        precip_plot(feature$geometry$coordinates[[2]],feature$geometry$coordinates[[1]])
+      })
+    })
+})
 
 ```
+
+Bingo!

@@ -1,0 +1,617 @@
+\documentclass[]{article}
+\usepackage{lmodern}
+\usepackage{amssymb,amsmath}
+\usepackage{ifxetex,ifluatex}
+\usepackage{fixltx2e} % provides \textsubscript
+\ifnum 0\ifxetex 1\fi\ifluatex 1\fi=0 % if pdftex
+  \usepackage[T1]{fontenc}
+  \usepackage[utf8]{inputenc}
+\else % if luatex or xelatex
+  \ifxetex
+    \usepackage{mathspec}
+  \else
+    \usepackage{fontspec}
+  \fi
+  \defaultfontfeatures{Ligatures=TeX,Scale=MatchLowercase}
+\fi
+% use upquote if available, for straight quotes in verbatim environments
+\IfFileExists{upquote.sty}{\usepackage{upquote}}{}
+% use microtype if available
+\IfFileExists{microtype.sty}{%
+\usepackage{microtype}
+\UseMicrotypeSet[protrusion]{basicmath} % disable protrusion for tt fonts
+}{}
+\usepackage[margin=1in]{geometry}
+\usepackage{hyperref}
+\hypersetup{unicode=true,
+            pdftitle={A Tutorial on Shiny and Leaflet},
+            pdfauthor={Zachary Hoylman},
+            pdfborder={0 0 0},
+            breaklinks=true}
+\urlstyle{same}  % don't use monospace font for urls
+\usepackage{color}
+\usepackage{fancyvrb}
+\newcommand{\VerbBar}{|}
+\newcommand{\VERB}{\Verb[commandchars=\\\{\}]}
+\DefineVerbatimEnvironment{Highlighting}{Verbatim}{commandchars=\\\{\}}
+% Add ',fontsize=\small' for more characters per line
+\usepackage{framed}
+\definecolor{shadecolor}{RGB}{248,248,248}
+\newenvironment{Shaded}{\begin{snugshade}}{\end{snugshade}}
+\newcommand{\AlertTok}[1]{\textcolor[rgb]{0.94,0.16,0.16}{#1}}
+\newcommand{\AnnotationTok}[1]{\textcolor[rgb]{0.56,0.35,0.01}{\textbf{\textit{#1}}}}
+\newcommand{\AttributeTok}[1]{\textcolor[rgb]{0.77,0.63,0.00}{#1}}
+\newcommand{\BaseNTok}[1]{\textcolor[rgb]{0.00,0.00,0.81}{#1}}
+\newcommand{\BuiltInTok}[1]{#1}
+\newcommand{\CharTok}[1]{\textcolor[rgb]{0.31,0.60,0.02}{#1}}
+\newcommand{\CommentTok}[1]{\textcolor[rgb]{0.56,0.35,0.01}{\textit{#1}}}
+\newcommand{\CommentVarTok}[1]{\textcolor[rgb]{0.56,0.35,0.01}{\textbf{\textit{#1}}}}
+\newcommand{\ConstantTok}[1]{\textcolor[rgb]{0.00,0.00,0.00}{#1}}
+\newcommand{\ControlFlowTok}[1]{\textcolor[rgb]{0.13,0.29,0.53}{\textbf{#1}}}
+\newcommand{\DataTypeTok}[1]{\textcolor[rgb]{0.13,0.29,0.53}{#1}}
+\newcommand{\DecValTok}[1]{\textcolor[rgb]{0.00,0.00,0.81}{#1}}
+\newcommand{\DocumentationTok}[1]{\textcolor[rgb]{0.56,0.35,0.01}{\textbf{\textit{#1}}}}
+\newcommand{\ErrorTok}[1]{\textcolor[rgb]{0.64,0.00,0.00}{\textbf{#1}}}
+\newcommand{\ExtensionTok}[1]{#1}
+\newcommand{\FloatTok}[1]{\textcolor[rgb]{0.00,0.00,0.81}{#1}}
+\newcommand{\FunctionTok}[1]{\textcolor[rgb]{0.00,0.00,0.00}{#1}}
+\newcommand{\ImportTok}[1]{#1}
+\newcommand{\InformationTok}[1]{\textcolor[rgb]{0.56,0.35,0.01}{\textbf{\textit{#1}}}}
+\newcommand{\KeywordTok}[1]{\textcolor[rgb]{0.13,0.29,0.53}{\textbf{#1}}}
+\newcommand{\NormalTok}[1]{#1}
+\newcommand{\OperatorTok}[1]{\textcolor[rgb]{0.81,0.36,0.00}{\textbf{#1}}}
+\newcommand{\OtherTok}[1]{\textcolor[rgb]{0.56,0.35,0.01}{#1}}
+\newcommand{\PreprocessorTok}[1]{\textcolor[rgb]{0.56,0.35,0.01}{\textit{#1}}}
+\newcommand{\RegionMarkerTok}[1]{#1}
+\newcommand{\SpecialCharTok}[1]{\textcolor[rgb]{0.00,0.00,0.00}{#1}}
+\newcommand{\SpecialStringTok}[1]{\textcolor[rgb]{0.31,0.60,0.02}{#1}}
+\newcommand{\StringTok}[1]{\textcolor[rgb]{0.31,0.60,0.02}{#1}}
+\newcommand{\VariableTok}[1]{\textcolor[rgb]{0.00,0.00,0.00}{#1}}
+\newcommand{\VerbatimStringTok}[1]{\textcolor[rgb]{0.31,0.60,0.02}{#1}}
+\newcommand{\WarningTok}[1]{\textcolor[rgb]{0.56,0.35,0.01}{\textbf{\textit{#1}}}}
+\usepackage{graphicx,grffile}
+\makeatletter
+\def\maxwidth{\ifdim\Gin@nat@width>\linewidth\linewidth\else\Gin@nat@width\fi}
+\def\maxheight{\ifdim\Gin@nat@height>\textheight\textheight\else\Gin@nat@height\fi}
+\makeatother
+% Scale images if necessary, so that they will not overflow the page
+% margins by default, and it is still possible to overwrite the defaults
+% using explicit options in \includegraphics[width, height, ...]{}
+\setkeys{Gin}{width=\maxwidth,height=\maxheight,keepaspectratio}
+\IfFileExists{parskip.sty}{%
+\usepackage{parskip}
+}{% else
+\setlength{\parindent}{0pt}
+\setlength{\parskip}{6pt plus 2pt minus 1pt}
+}
+\setlength{\emergencystretch}{3em}  % prevent overfull lines
+\providecommand{\tightlist}{%
+  \setlength{\itemsep}{0pt}\setlength{\parskip}{0pt}}
+\setcounter{secnumdepth}{0}
+% Redefines (sub)paragraphs to behave more like sections
+\ifx\paragraph\undefined\else
+\let\oldparagraph\paragraph
+\renewcommand{\paragraph}[1]{\oldparagraph{#1}\mbox{}}
+\fi
+\ifx\subparagraph\undefined\else
+\let\oldsubparagraph\subparagraph
+\renewcommand{\subparagraph}[1]{\oldsubparagraph{#1}\mbox{}}
+\fi
+
+%%% Use protect on footnotes to avoid problems with footnotes in titles
+\let\rmarkdownfootnote\footnote%
+\def\footnote{\protect\rmarkdownfootnote}
+
+%%% Change title format to be more compact
+\usepackage{titling}
+
+% Create subtitle command for use in maketitle
+\providecommand{\subtitle}[1]{
+  \posttitle{
+    \begin{center}\large#1\end{center}
+    }
+}
+
+\setlength{\droptitle}{-2em}
+
+  \title{A Tutorial on Shiny and Leaflet}
+    \pretitle{\vspace{\droptitle}\centering\huge}
+  \posttitle{\par}
+    \author{Zachary Hoylman}
+    \preauthor{\centering\large\emph}
+  \postauthor{\par}
+      \predate{\centering\large\emph}
+  \postdate{\par}
+    \date{11/5/2019}
+
+
+\begin{document}
+\maketitle
+
+\hypertarget{shiny-introduction-installation-and-example}{%
+\section{Shiny: Introduction, installation and
+example}\label{shiny-introduction-installation-and-example}}
+
+Shiny is an R package that makes it easy to build interactive web
+applications (apps) straight from R. This lesson will get you started
+building Shiny apps right away.
+
+If you still haven't installed the Shiny package, open an R session,
+connect to the internet, and run
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\KeywordTok{install.packages}\NormalTok{(}\StringTok{"shiny"}\NormalTok{)}
+\end{Highlighting}
+\end{Shaded}
+
+First lets run a shiny app example that comes with shiny to understand
+what apps, in a very very very simple form, are.
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\KeywordTok{library}\NormalTok{(shiny)}
+\KeywordTok{runExample}\NormalTok{(}\StringTok{"01_hello"}\NormalTok{)}
+\end{Highlighting}
+\end{Shaded}
+
+\hypertarget{shiny-layout}{%
+\section{Shiny layout}\label{shiny-layout}}
+
+There are two main components to a shiny app, a User Interface (UI) and
+a server. The UI is used to pass arguments to the server script which
+conducts the operations. These two parts of the app can either be
+contained in two separate scripts (ui.R and server.R) or can be combined
+in a single script that has both components.
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\KeywordTok{shinyApp}\NormalTok{(}\DataTypeTok{ui =}\NormalTok{ defines the user interface,}
+         \DataTypeTok{server =}\NormalTok{ define the operations being conducted and does things like plotting)}
+\end{Highlighting}
+\end{Shaded}
+
+\hypertarget{simple-script-example}{%
+\subsection{Simple script example}\label{simple-script-example}}
+
+This script recreates the app shown above to familiarize ourselves with
+how shiny apps operate. We are going to be using a base R data set for
+this example, ``faithful'', which is a data set of Old Faithful geyser
+eruptions.
+
+Lets take a quick look at the data
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\KeywordTok{head}\NormalTok{(faithful)}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{verbatim}
+##   eruptions waiting
+## 1     3.600      79
+## 2     1.800      54
+## 3     3.333      74
+## 4     2.283      62
+## 5     4.533      85
+## 6     2.883      55
+\end{verbatim}
+
+``eruptions'' represent the length of time of a single eruption, and
+``waiting'' is the time in between eruptions. We are going to be using
+the second column in this data set.
+
+Now lets look at the app.
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\KeywordTok{shinyApp}\NormalTok{(}
+  \CommentTok{# First lets build the user interface (UI).}
+  \DataTypeTok{ui =} \KeywordTok{fluidPage}\NormalTok{(}
+  \CommentTok{# App title ----}
+  \KeywordTok{titlePanel}\NormalTok{(}\StringTok{"Old Faithful Eruptions"}\NormalTok{),}
+  \CommentTok{# There are different lay out options we can use in shiny,}
+  \CommentTok{# here we will be using the "sidebarLayout" option.}
+  \KeywordTok{sidebarLayout}\NormalTok{(}
+    \CommentTok{# Now we add idebar panel for inputs ----}
+    \KeywordTok{sidebarPanel}\NormalTok{(}
+      \CommentTok{# Input: Slider for the number of bins ----}
+      \KeywordTok{sliderInput}\NormalTok{(}\DataTypeTok{inputId =} \StringTok{"bins"}\NormalTok{,}
+                  \DataTypeTok{label =} \StringTok{"Number of bins:"}\NormalTok{,}
+                  \DataTypeTok{min =} \DecValTok{1}\NormalTok{,}
+                  \DataTypeTok{max =} \DecValTok{50}\NormalTok{,}
+                  \DataTypeTok{value =} \DecValTok{30}\NormalTok{)}
+\NormalTok{    ),}
+    \CommentTok{# Main panel for displaying outputs ----}
+    \KeywordTok{mainPanel}\NormalTok{(}
+      \CommentTok{# Output: Histogram named distPlot. }
+      \CommentTok{# distPlot is defined below. }
+      \KeywordTok{plotOutput}\NormalTok{(}\DataTypeTok{outputId =} \StringTok{"distPlot"}\NormalTok{)}
+\NormalTok{    )}
+\NormalTok{  )}
+\NormalTok{),}
+\NormalTok{server <-}\StringTok{ }\ControlFlowTok{function}\NormalTok{(input, output) \{}
+  \CommentTok{# Histogram of the Old Faithful Geyser Data}
+  \CommentTok{# with requested number of bins}
+  \CommentTok{# This expression that generates a histogram is wrapped in a call}
+  \CommentTok{# to renderPlot to indicate that:}
+  \CommentTok{#}
+  \CommentTok{# 1. It is "reactive" and therefore should be automatically}
+  \CommentTok{#    re-executed when inputs (input$bins) change}
+  \CommentTok{# 2. Its output type is a plot}
+\NormalTok{  output}\OperatorTok{$}\NormalTok{distPlot <-}\StringTok{ }\KeywordTok{renderPlot}\NormalTok{(\{}
+    \CommentTok{# Fist we define what data is being used in the plot. }
+    \CommentTok{# For a histogram we want our variable of interest on the x}
+    \CommentTok{# The user doesnt have an option to change this... yet}
+\NormalTok{    x    <-}\StringTok{ }\NormalTok{faithful}\OperatorTok{$}\NormalTok{waiting}
+    \CommentTok{# This is the part that is modifiied by the user (input$bins). }
+    \CommentTok{# Here the user is overwriting the "bins" variable }
+\NormalTok{    bins <-}\StringTok{ }\KeywordTok{seq}\NormalTok{(}\KeywordTok{min}\NormalTok{(x), }\KeywordTok{max}\NormalTok{(x), }\DataTypeTok{length.out =}\NormalTok{ input}\OperatorTok{$}\NormalTok{bins }\OperatorTok{+}\StringTok{ }\DecValTok{1}\NormalTok{)}
+    \CommentTok{#here is the plot}
+    \KeywordTok{hist}\NormalTok{(x, }\DataTypeTok{breaks =}\NormalTok{ bins, }\DataTypeTok{col =} \StringTok{"#75AADB"}\NormalTok{, }\DataTypeTok{border =} \StringTok{"white"}\NormalTok{,}
+         \DataTypeTok{xlab =} \StringTok{"Time in between eruptions (Minutes)"}\NormalTok{,}
+         \DataTypeTok{main =} \StringTok{"Histogram of waiting times"}\NormalTok{)}
+\NormalTok{    \})}
+\NormalTok{\})}
+\end{Highlighting}
+\end{Shaded}
+
+\hypertarget{multivariate-example}{%
+\section{Multivariate example}\label{multivariate-example}}
+
+Great! Now we have a better idea of how these apps work. Lets now do
+something a bit more realistic. Say you have a lot of data that you want
+to visualize in different ways. Lets make an app that allows the user to
+choose x and y variables from a list of variables, plots them and does a
+bit of stats. We are going to use the data set ``iris'' for this
+example. This data set has information about properties of flowers.
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\KeywordTok{head}\NormalTok{(iris)}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{verbatim}
+##   Sepal.Length Sepal.Width Petal.Length Petal.Width Species
+## 1          5.1         3.5          1.4         0.2  setosa
+## 2          4.9         3.0          1.4         0.2  setosa
+## 3          4.7         3.2          1.3         0.2  setosa
+## 4          4.6         3.1          1.5         0.2  setosa
+## 5          5.0         3.6          1.4         0.2  setosa
+## 6          5.4         3.9          1.7         0.4  setosa
+\end{verbatim}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\KeywordTok{shinyApp}\NormalTok{(}\DataTypeTok{ui =} \KeywordTok{fluidPage}\NormalTok{(}
+  \CommentTok{# First we will build the UI in the same fashion as before}
+  \KeywordTok{titlePanel}\NormalTok{(}\StringTok{"Flowers!"}\NormalTok{),}
+  \CommentTok{# we are going to allow the user to choose a polynomial degree for the model}
+  \KeywordTok{numericInput}\NormalTok{(}\DataTypeTok{inputId =} \StringTok{"obs"}\NormalTok{,}
+                  \DataTypeTok{label =} \StringTok{"Choose Polynomial Degree"}\NormalTok{,}
+                  \DataTypeTok{value =} \DecValTok{1}\NormalTok{, }\DataTypeTok{min =} \DecValTok{1}\NormalTok{, }\DataTypeTok{max =} \DecValTok{5}\NormalTok{),}
+  \CommentTok{# this time instead of a slider, we are going to define the }
+  \CommentTok{# dropdown options for selecting data from the iris dataset.}
+  \CommentTok{# We are going to define the input ID, Label and Choices.}
+  \CommentTok{# Choices are a name you decide, and then the respective Collumn }
+  \CommentTok{# name in iris. (See prind out above for more details)}
+  \KeywordTok{sidebarLayout}\NormalTok{(}
+    \KeywordTok{sidebarPanel}\NormalTok{(}
+      \KeywordTok{selectInput}\NormalTok{(}\DataTypeTok{inputId =} \StringTok{"x"}\NormalTok{,}
+                  \DataTypeTok{label =} \StringTok{"Choose an independent variable"}\NormalTok{,}
+                  \DataTypeTok{choices =} \KeywordTok{c}\NormalTok{(}\StringTok{"Sepal Length"}\NormalTok{ =}\StringTok{ "Sepal.Length"}\NormalTok{,}
+                              \StringTok{"Sepal Width"}\NormalTok{ =}\StringTok{ "Sepal.Width"}\NormalTok{,}
+                              \StringTok{"Petal Length"}\NormalTok{ =}\StringTok{ "Petal.Length"}\NormalTok{,}
+                              \StringTok{"Petal Width"}\NormalTok{ =}\StringTok{ "Petal.Width"}\NormalTok{))}
+\NormalTok{    ),}
+    \CommentTok{# repeate for y}
+    \KeywordTok{sidebarPanel}\NormalTok{(}
+      \KeywordTok{selectInput}\NormalTok{(}\DataTypeTok{inputId =} \StringTok{"y"}\NormalTok{,}
+                  \DataTypeTok{label =} \StringTok{"Choose an dependent variable"}\NormalTok{,}
+                  \DataTypeTok{choices =} \KeywordTok{c}\NormalTok{(}\StringTok{"Sepal Length"}\NormalTok{ =}\StringTok{ "Sepal.Length"}\NormalTok{,}
+                              \StringTok{"Sepal Width"}\NormalTok{ =}\StringTok{ "Sepal.Width"}\NormalTok{,}
+                              \StringTok{"Petal Length"}\NormalTok{ =}\StringTok{ "Petal.Length"}\NormalTok{,}
+                              \StringTok{"Petal Width"}\NormalTok{ =}\StringTok{ "Petal.Width"}\NormalTok{))}
+\NormalTok{    ),}
+\NormalTok{  ),}
+  \CommentTok{# the output will be a plot, same as the previous example }
+  \KeywordTok{mainPanel}\NormalTok{(}
+    \KeywordTok{plotOutput}\NormalTok{(}\DataTypeTok{outputId =} \StringTok{"Plot"}\NormalTok{)}
+
+\NormalTok{  )}
+\NormalTok{), }\DataTypeTok{server =} \ControlFlowTok{function}\NormalTok{(input, output) \{}
+  \CommentTok{# now we define what part of the app is "reactive" in the server section. }
+  \CommentTok{# in this case it will be the user defined variables to use for the modeling}
+  \CommentTok{# and plotting.}
+\NormalTok{  output}\OperatorTok{$}\NormalTok{Plot =}\StringTok{ }\KeywordTok{renderPlot}\NormalTok{(\{}
+    \CommentTok{# using the user inputs, we will build the dataset used}
+\NormalTok{    data =}\StringTok{ }\KeywordTok{data.frame}\NormalTok{(}\DataTypeTok{x =}\NormalTok{ iris[,input}\OperatorTok{$}\NormalTok{x],}
+                      \DataTypeTok{y =}\NormalTok{ iris[,input}\OperatorTok{$}\NormalTok{y])}
+    \CommentTok{# compute a linear model with  polynomial term}
+\NormalTok{    model =}\StringTok{ }\KeywordTok{with}\NormalTok{(data,}\KeywordTok{lm}\NormalTok{(y }\OperatorTok{~}\StringTok{ }\KeywordTok{poly}\NormalTok{(x,input}\OperatorTok{$}\NormalTok{obs)))}
+    \CommentTok{# predict data out for plotting}
+\NormalTok{    predict_data =}\StringTok{ }\KeywordTok{data.frame}\NormalTok{(}\DataTypeTok{x =} \KeywordTok{seq}\NormalTok{(}\KeywordTok{min}\NormalTok{(data}\OperatorTok{$}\NormalTok{x), }\KeywordTok{max}\NormalTok{(data}\OperatorTok{$}\NormalTok{x), }\DataTypeTok{length.out =} \DecValTok{1000}\NormalTok{))}
+\NormalTok{    predicted.intervals =}\StringTok{ }\KeywordTok{data.frame}\NormalTok{(}\KeywordTok{predict}\NormalTok{(model, }\DataTypeTok{newdata =}\NormalTok{ predict_data, , }\DataTypeTok{interval =} \StringTok{"confidence"}\NormalTok{))}
+    \CommentTok{# extract some inforamtion from the lm for the plot}
+\NormalTok{    summary =}\StringTok{ }\KeywordTok{summary}\NormalTok{(model)}
+    \CommentTok{# build the plot itself}
+    \KeywordTok{plot}\NormalTok{(data}\OperatorTok{$}\NormalTok{x, data}\OperatorTok{$}\NormalTok{y, }\DataTypeTok{xlab =}\NormalTok{ input}\OperatorTok{$}\NormalTok{x, }\DataTypeTok{ylab =}\NormalTok{ input}\OperatorTok{$}\NormalTok{y, }\DataTypeTok{col =}\NormalTok{ iris}\OperatorTok{$}\NormalTok{Species)}
+    \CommentTok{# add the lm as an and confidence intervals as lines}
+    \KeywordTok{lines}\NormalTok{(predict_data}\OperatorTok{$}\NormalTok{x, predicted.intervals}\OperatorTok{$}\NormalTok{fit,}\DataTypeTok{col=}\StringTok{'green'}\NormalTok{,}\DataTypeTok{lwd=}\DecValTok{3}\NormalTok{)}
+    \KeywordTok{lines}\NormalTok{(predict_data}\OperatorTok{$}\NormalTok{x, predicted.intervals}\OperatorTok{$}\NormalTok{lwr,}\DataTypeTok{col=}\StringTok{'black'}\NormalTok{,}\DataTypeTok{lwd=}\DecValTok{1}\NormalTok{)}
+    \KeywordTok{lines}\NormalTok{(predict_data}\OperatorTok{$}\NormalTok{x, predicted.intervals}\OperatorTok{$}\NormalTok{upr,}\DataTypeTok{col=}\StringTok{'black'}\NormalTok{,}\DataTypeTok{lwd=}\DecValTok{1}\NormalTok{)}
+    \CommentTok{# add the r2 of the regression to the plot}
+    \KeywordTok{mtext}\NormalTok{(}\KeywordTok{paste0}\NormalTok{(}\StringTok{"r = "}\NormalTok{, }\KeywordTok{round}\NormalTok{(summary}\OperatorTok{$}\NormalTok{r.squared,}\DecValTok{2}\NormalTok{), }\DataTypeTok{side=}\DecValTok{3}\NormalTok{))}
+    \CommentTok{# add a color scalling legend}
+    \KeywordTok{legend}\NormalTok{(}\StringTok{"topleft"}\NormalTok{,}\DataTypeTok{legend=}\KeywordTok{levels}\NormalTok{(iris}\OperatorTok{$}\NormalTok{Species),}\DataTypeTok{col=}\DecValTok{1}\OperatorTok{:}\DecValTok{3}\NormalTok{, }\DataTypeTok{pch=}\DecValTok{1}\NormalTok{)}
+\NormalTok{  \})}
+\NormalTok{\})}
+\end{Highlighting}
+\end{Shaded}
+
+Bingo! We have a working multivariate app that allows for some data
+analysis. At this point you should start to see some of the utility of
+building apps. Apps allow the user to get a much more ``data rich''
+experience by allowing them to explore the data. In other words, they
+can evaluate your data and analysis more on their own terms. In summary
+allowing for flexibility in data visualization and analysis can promote
+a much greater understanding of your research.
+
+\hypertarget{leaflet-introduction-and-installation}{%
+\section{Leaflet: Introduction and
+installation}\label{leaflet-introduction-and-installation}}
+
+Leaflet is a very powerful library that allows for interactive mapping.
+A lot of research in the natural sciences has a spatial component and
+often we rely on graphical user interfaces to produce visualizations of
+our data. Think ESRI ArcGIS. In some cases, making quick maps for
+visualizing can be a pain and sometimes you want a product that is
+interactive for the end user without them having to have access to a GIS
+platform.
+
+With this I present Leaflet, an open-source JavaScript library for
+mobile-friendly interactive maps. But\ldots{} Now we have a R library
+that brings this powerful mapping service to R users without having to
+code in JavaScript (except for customization).
+
+Lets install the package.
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\KeywordTok{install.packages}\NormalTok{(}\StringTok{"leaflet"}\NormalTok{)}
+\end{Highlighting}
+\end{Shaded}
+
+\hypertarget{quick-note}{%
+\subsection{Quick Note!}\label{quick-note}}
+
+In this next section I am going to be using an operator you might not be
+familiar with, the ``pipe'' operator (\%\textgreater{}\%). This is a
+very nifty tool that allows a user to avoid having tons of para theses,
+making code much more difficult to read. When you have a bunch of pipes
+put together complex data manipulation can be easy to read and
+understand by someone not familiar with your code. The main jist of the
+pipe operator is that the data set from the previous line is passed to
+the next part of the ``pipe chain''.
+
+Here is an example
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\KeywordTok{library}\NormalTok{(leaflet)}
+
+\CommentTok{# traditional way of doing some wierd data manipulation (HARD TO READ!!!)}
+\KeywordTok{round}\NormalTok{(}\KeywordTok{exp}\NormalTok{(}\KeywordTok{diff}\NormalTok{(}\KeywordTok{log}\NormalTok{(iris}\OperatorTok{$}\NormalTok{Sepal.Length))),}\DecValTok{2}\NormalTok{)}
+
+\CommentTok{# the other non preferable option. }
+\NormalTok{data =}\StringTok{ }\NormalTok{iris}\OperatorTok{$}\NormalTok{Sepal.Length}
+\NormalTok{log_data =}\StringTok{ }\KeywordTok{log}\NormalTok{(data)}
+\NormalTok{diff_log_data =}\StringTok{ }\KeywordTok{diff}\NormalTok{(log_data)}
+\NormalTok{exp_diff_log_data =}\StringTok{ }\KeywordTok{exp}\NormalTok{(diff_log_data)}
+\NormalTok{round_exp_diff_log_data =}\StringTok{ }\KeywordTok{round}\NormalTok{(exp_diff_log_data,}\DecValTok{2}\NormalTok{)}
+\KeywordTok{print}\NormalTok{(round_exp_diff_log_data)}
+
+\CommentTok{# with a pipe operator (much easier to read, also allows you to avoid redefining data)}
+\NormalTok{iris}\OperatorTok{$}\NormalTok{Sepal.Length }\OperatorTok{%>%}
+\StringTok{  }\KeywordTok{log}\NormalTok{()}\OperatorTok{%>%}
+\StringTok{  }\KeywordTok{diff}\NormalTok{()}\OperatorTok{%>%}
+\StringTok{  }\KeywordTok{exp}\NormalTok{()}\OperatorTok{%>%}
+\StringTok{  }\KeywordTok{round}\NormalTok{(., }\DecValTok{2}\NormalTok{)}
+\end{Highlighting}
+\end{Shaded}
+
+They all yield the same result, they just do so in different ways. When
+you start to have large data sets the pipe chain method saves tons of
+RAM space and mixed with packages that leverage C++ (like dplyr) make
+your code run WAAAAAYYYYYYY faster.
+
+\hypertarget{simple-leaflet-example}{%
+\section{Simple Leaflet example}\label{simple-leaflet-example}}
+
+Let's say you want a simple ESRI like base map.
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\KeywordTok{library}\NormalTok{(leaflet)}
+\KeywordTok{leaflet}\NormalTok{() }\OperatorTok{%>%}
+\StringTok{  }\KeywordTok{addProviderTiles}\NormalTok{(providers}\OperatorTok{$}\NormalTok{Esri.NatGeoWorldMap)}
+\end{Highlighting}
+\end{Shaded}
+
+DONE! How cool is that? Now we can make the map go straight to Missoula.
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\KeywordTok{leaflet}\NormalTok{() }\OperatorTok{%>%}
+\StringTok{  }\KeywordTok{addProviderTiles}\NormalTok{(providers}\OperatorTok{$}\NormalTok{Esri.NatGeoWorldMap) }\OperatorTok{%>%}
+\StringTok{  }\KeywordTok{setView}\NormalTok{(}\DataTypeTok{lat =} \FloatTok{46.875676}\NormalTok{, }\DataTypeTok{lng =} \FloatTok{-113.991386}\NormalTok{, }\DataTypeTok{zoom =} \DecValTok{12}\NormalTok{)}
+\end{Highlighting}
+\end{Shaded}
+
+Now lets add some data you collected from the field
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\CommentTok{# define some data with a location and a name }
+\CommentTok{# this is where you would substatute your own data from the field }
+\NormalTok{data_from_the_field =}\StringTok{ }\KeywordTok{data.frame}\NormalTok{(}\DataTypeTok{names =} \KeywordTok{c}\NormalTok{(}\StringTok{"Site 1"}\NormalTok{, }\StringTok{"Site 2"}\NormalTok{, }\StringTok{"Site 3"}\NormalTok{),}
+                                 \DataTypeTok{lat =} \KeywordTok{c}\NormalTok{(}\FloatTok{46.875}\NormalTok{, }\FloatTok{46.877}\NormalTok{, }\FloatTok{46.887}\NormalTok{),}
+                                 \DataTypeTok{long =} \KeywordTok{c}\NormalTok{(}\OperatorTok{-}\FloatTok{113.991}\NormalTok{, }\FloatTok{-113.994}\NormalTok{, }\DecValTok{-114}\NormalTok{))}
+
+\KeywordTok{leaflet}\NormalTok{() }\OperatorTok{%>%}
+\StringTok{  }\KeywordTok{addProviderTiles}\NormalTok{(providers}\OperatorTok{$}\NormalTok{Esri.NatGeoWorldMap) }\OperatorTok{%>%}
+\StringTok{  }\KeywordTok{setView}\NormalTok{(}\DataTypeTok{lat =} \FloatTok{46.875676}\NormalTok{, }\DataTypeTok{lng =} \FloatTok{-113.991386}\NormalTok{, }\DataTypeTok{zoom =} \DecValTok{13}\NormalTok{) }\OperatorTok{%>%}
+\StringTok{  }\KeywordTok{addMarkers}\NormalTok{(data_from_the_field}\OperatorTok{$}\NormalTok{long, data_from_the_field}\OperatorTok{$}\NormalTok{lat, }\DataTypeTok{popup =}\NormalTok{ data_from_the_field}\OperatorTok{$}\NormalTok{names)}
+\end{Highlighting}
+\end{Shaded}
+
+\hypertarget{mixing-leaflet-and-shiny}{%
+\section{Mixing Leaflet and Shiny}\label{mixing-leaflet-and-shiny}}
+
+This is where things get really cool. Coupling custom functions with
+geospatial information from leaflet and using the reactive capabilities
+of Shiny yield some seriously powerful tools. For example, a question I
+get a lot working in the climate office is ``home much precipitation
+does {[}insert place here{]} get''. I am going to share with you a tool
+that can answer that question for any location in the continental U.S.
+using gridMET data produced by the University of Idaho.
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\KeywordTok{install.packages}\NormalTok{(}\KeywordTok{c}\NormalTok{(}\StringTok{"ncdf4"}\NormalTok{, }\StringTok{"lubridate"}\NormalTok{, }\StringTok{"dplyr"}\NormalTok{, }\StringTok{"zoo"}\NormalTok{, }\StringTok{"ggplot2"}\NormalTok{, }\StringTok{"scales"}\NormalTok{, }\StringTok{"leaflet.extras"}\NormalTok{))}
+
+\KeywordTok{library}\NormalTok{(ncdf4)}
+\KeywordTok{library}\NormalTok{(lubridate)}
+\KeywordTok{library}\NormalTok{(dplyr)}
+\KeywordTok{library}\NormalTok{(zoo)}
+\KeywordTok{library}\NormalTok{(ggplot2)}
+\KeywordTok{library}\NormalTok{(scales)}
+
+\NormalTok{precip_plot =}\StringTok{ }\ControlFlowTok{function}\NormalTok{(lat_in, lon_in)\{}
+\NormalTok{  lat_of_interest =}\StringTok{ }\NormalTok{lat_in}
+\NormalTok{  lon_of_interest =}\StringTok{ }\NormalTok{lon_in}
+  
+  \CommentTok{### DEFINE THE URL to net cdf}
+\NormalTok{  urltotal<-}\StringTok{"http://thredds.northwestknowledge.net:8080/thredds/dodsC/agg_met_pr_1979_CurrentYear_CONUS.nc"}
+  
+  \CommentTok{## OPEN THE FILE}
+\NormalTok{  nc <-}\StringTok{ }\KeywordTok{nc_open}\NormalTok{(urltotal)}
+  
+  \CommentTok{## }\AlertTok{NOTE}\CommentTok{: FILE DIMENSIONS ARE lon,lat,time}
+\NormalTok{  v3 <-}\StringTok{ }\NormalTok{nc}\OperatorTok{$}\NormalTok{var[[}\DecValTok{1}\NormalTok{]]}
+\NormalTok{  lonsize <-}\StringTok{ }\NormalTok{v3}\OperatorTok{$}\NormalTok{varsize[}\DecValTok{1}\NormalTok{]}
+\NormalTok{  latsize <-}\StringTok{ }\NormalTok{v3}\OperatorTok{$}\NormalTok{varsize[}\DecValTok{2}\NormalTok{] }
+\NormalTok{  endcount <-}\StringTok{ }\NormalTok{v3}\OperatorTok{$}\NormalTok{varsize[}\DecValTok{3}\NormalTok{] }
+  
+  \CommentTok{### DEFINE OUR POINT OF INTEREST }
+\NormalTok{  lon_matrix =}\StringTok{ }\NormalTok{nc}\OperatorTok{$}\NormalTok{var[[}\DecValTok{1}\NormalTok{]]}\OperatorTok{$}\NormalTok{dim[[}\DecValTok{1}\NormalTok{]]}\OperatorTok{$}\NormalTok{vals}
+\NormalTok{  lat_matrix =}\StringTok{ }\NormalTok{nc}\OperatorTok{$}\NormalTok{var[[}\DecValTok{1}\NormalTok{]]}\OperatorTok{$}\NormalTok{dim[[}\DecValTok{2}\NormalTok{]]}\OperatorTok{$}\NormalTok{vals}
+  
+  \CommentTok{#find lat long that corispond}
+\NormalTok{  lon=}\KeywordTok{which}\NormalTok{(}\KeywordTok{abs}\NormalTok{(lon_matrix}\OperatorTok{-}\NormalTok{lon_of_interest)}\OperatorTok{==}\KeywordTok{min}\NormalTok{(}\KeywordTok{abs}\NormalTok{(lon_matrix}\OperatorTok{-}\NormalTok{lon_of_interest)))  }
+\NormalTok{  lat=}\KeywordTok{which}\NormalTok{(}\KeywordTok{abs}\NormalTok{(lat_matrix}\OperatorTok{-}\NormalTok{lat_of_interest)}\OperatorTok{==}\KeywordTok{min}\NormalTok{(}\KeywordTok{abs}\NormalTok{(lat_matrix}\OperatorTok{-}\NormalTok{lat_of_interest))) }
+  
+  \CommentTok{## DEFINE OUR VARIABLE NAME }
+\NormalTok{  var=}\StringTok{"precipitation_amount"}
+  
+  \CommentTok{## READ THE DATA VARIABLE }
+\NormalTok{  data <-}\StringTok{ }\KeywordTok{ncvar_get}\NormalTok{(nc, var, }\DataTypeTok{start=}\KeywordTok{c}\NormalTok{(lon,lat,}\DecValTok{1}\NormalTok{),}\DataTypeTok{count=}\KeywordTok{c}\NormalTok{(}\DecValTok{1}\NormalTok{,}\DecValTok{1}\NormalTok{,endcount))}
+  \CommentTok{## READ THE TIME VARIABLE}
+\NormalTok{  time <-}\StringTok{ }\KeywordTok{ncvar_get}\NormalTok{(nc, }\StringTok{"day"}\NormalTok{, }\DataTypeTok{start=}\KeywordTok{c}\NormalTok{(}\DecValTok{1}\NormalTok{),}\DataTypeTok{count=}\KeywordTok{c}\NormalTok{(endcount))}
+  \CommentTok{## CONVERT TIME FROM "days since 1900-01-01" TO YYYY-MM-DD}
+\NormalTok{  time=}\KeywordTok{as.Date}\NormalTok{(time, }\DataTypeTok{origin=}\StringTok{"1900-01-01"}\NormalTok{) }
+  \CommentTok{# PUT EVERYTHING INTO A DATA FRAME}
+\NormalTok{  data <-}\StringTok{ }\KeywordTok{data.frame}\NormalTok{(time,data)}
+  
+  \CommentTok{## CLOSE THE FILE}
+  \KeywordTok{nc_close}\NormalTok{(nc)}
+  
+  \CommentTok{#define some date based variables}
+\NormalTok{  data}\OperatorTok{$}\NormalTok{day =}\StringTok{ }\KeywordTok{yday}\NormalTok{(data}\OperatorTok{$}\NormalTok{time)}
+\NormalTok{  data}\OperatorTok{$}\NormalTok{year =}\StringTok{ }\KeywordTok{year}\NormalTok{(data}\OperatorTok{$}\NormalTok{time)}
+\NormalTok{  data}\OperatorTok{$}\NormalTok{month =}\StringTok{ }\KeywordTok{month}\NormalTok{(data}\OperatorTok{$}\NormalTok{time, }\DataTypeTok{label =}\NormalTok{ T, }\DataTypeTok{abbr =}\NormalTok{ F)}
+  
+\NormalTok{  monthly_average =}\StringTok{ }\NormalTok{data }\OperatorTok{%>%}
+\StringTok{    }\KeywordTok{group_by}\NormalTok{(month,year) }\OperatorTok{%>%}
+\StringTok{    }\NormalTok{dplyr}\OperatorTok{::}\KeywordTok{summarise}\NormalTok{(}\DataTypeTok{sum =} \KeywordTok{sum}\NormalTok{(data))}\OperatorTok{%>%}
+\StringTok{    }\KeywordTok{group_by}\NormalTok{(month) }\OperatorTok{%>%}
+\StringTok{    }\NormalTok{dplyr}\OperatorTok{::}\KeywordTok{summarise}\NormalTok{(}\DataTypeTok{mean =} \KeywordTok{mean}\NormalTok{(sum))}
+  
+  \CommentTok{#monthly data}
+\NormalTok{  monthly_data =}\StringTok{ }\NormalTok{data }\OperatorTok{%>%}
+\StringTok{    }\KeywordTok{group_by}\NormalTok{(month, year) }\OperatorTok{%>%}
+\StringTok{    }\NormalTok{dplyr}\OperatorTok{::}\KeywordTok{summarise}\NormalTok{(}\DataTypeTok{sum =} \KeywordTok{sum}\NormalTok{(data)) }\OperatorTok{%>%}
+\StringTok{    }\CommentTok{#mutate(monthly_percent = sum/monthly_average$mean) %>%}
+\StringTok{    }\KeywordTok{mutate}\NormalTok{(}\DataTypeTok{time =} \KeywordTok{as.POSIXct}\NormalTok{(}\KeywordTok{as.Date}\NormalTok{(}\KeywordTok{as.yearmon}\NormalTok{(}\KeywordTok{paste}\NormalTok{(year, month, }\DataTypeTok{sep =} \StringTok{"-"}\NormalTok{), }\StringTok{'%Y-%b'}\NormalTok{))))}\OperatorTok{%>%}
+\StringTok{    }\KeywordTok{arrange}\NormalTok{(time) }
+     
+\NormalTok{  plot_function =}\StringTok{ }\ControlFlowTok{function}\NormalTok{(data)\{}
+\NormalTok{    precip_plot =}\StringTok{ }\KeywordTok{ggplot}\NormalTok{(}\DataTypeTok{data =}\NormalTok{ data, }\KeywordTok{aes}\NormalTok{(}\DataTypeTok{x =}\NormalTok{ time, }\DataTypeTok{y =}\NormalTok{ sum))}\OperatorTok{+}
+\StringTok{      }\KeywordTok{geom_bar}\NormalTok{(}\DataTypeTok{stat =} \StringTok{'identity'}\NormalTok{, }\DataTypeTok{fill =} \StringTok{"blue"}\NormalTok{)}\OperatorTok{+}
+\StringTok{      }\KeywordTok{xlab}\NormalTok{(}\StringTok{""}\NormalTok{)}\OperatorTok{+}
+\StringTok{      }\KeywordTok{ylab}\NormalTok{(}\StringTok{"Precipitation (mm/month)"}\NormalTok{)}\OperatorTok{+}
+\StringTok{      }\KeywordTok{theme_bw}\NormalTok{(}\DataTypeTok{base_size =} \DecValTok{16}\NormalTok{)}\OperatorTok{+}
+\StringTok{      }\KeywordTok{ggtitle}\NormalTok{(}\StringTok{""}\NormalTok{)}\OperatorTok{+}
+\StringTok{      }\CommentTok{# geom_text(data = data, aes(x = time, y = monthly_sum, label = paste(percent_average,'%',sep = "")),}
+\StringTok{      }\CommentTok{#           nudge_y = 20, size = 3)+}
+\StringTok{      }\KeywordTok{theme}\NormalTok{(}\DataTypeTok{legend.position=}\StringTok{"none"}\NormalTok{,}
+            \DataTypeTok{axis.text.x =} \KeywordTok{element_text}\NormalTok{(}\DataTypeTok{angle =} \DecValTok{60}\NormalTok{, }\DataTypeTok{vjust =} \FloatTok{0.5}\NormalTok{))}\OperatorTok{+}
+\StringTok{      }\KeywordTok{scale_x_datetime}\NormalTok{(}\DataTypeTok{breaks =} \KeywordTok{date_breaks}\NormalTok{(}\StringTok{"3 month"}\NormalTok{), }\DataTypeTok{labels=}\KeywordTok{date_format}\NormalTok{(}\StringTok{"%b / %Y"}\NormalTok{),}
+                       \DataTypeTok{limits=} \KeywordTok{as.POSIXct}\NormalTok{(}\KeywordTok{c}\NormalTok{(data}\OperatorTok{$}\NormalTok{time[}\KeywordTok{length}\NormalTok{(data}\OperatorTok{$}\NormalTok{time)}\OperatorTok{-}\DecValTok{36}\NormalTok{], data}\OperatorTok{$}\NormalTok{time[}\KeywordTok{length}\NormalTok{(data}\OperatorTok{$}\NormalTok{time)]))) }\CommentTok{#add perfect amount of time for clean plotting}
+    \KeywordTok{return}\NormalTok{(precip_plot)}
+\NormalTok{  \}}
+\NormalTok{  final_plot =}\StringTok{ }\KeywordTok{plot_function}\NormalTok{(monthly_data)}
+  \KeywordTok{return}\NormalTok{(final_plot)}
+\NormalTok{\}}
+\end{Highlighting}
+\end{Shaded}
+
+Now using this custom function, leaflet and shiny, lets make a map that
+allows a user to click on a location and recive a preciptation plot.
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\KeywordTok{library}\NormalTok{(shiny)}
+\KeywordTok{library}\NormalTok{(leaflet)}
+\KeywordTok{library}\NormalTok{(leaflet.extras)}
+\KeywordTok{shinyApp}\NormalTok{(ui <-}\StringTok{ }\KeywordTok{fluidPage}\NormalTok{(}
+  \KeywordTok{verticalLayout}\NormalTok{(),}
+  \KeywordTok{leafletOutput}\NormalTok{(}\StringTok{"mymap"}\NormalTok{),}
+  \KeywordTok{conditionalPanel}\NormalTok{(}\DataTypeTok{condition=}\StringTok{"$('html').hasClass('shiny-busy')"}\NormalTok{,}
+\NormalTok{                                   tags}\OperatorTok{$}\KeywordTok{div}\NormalTok{(}\StringTok{"Calculating Climatology..."}\NormalTok{,}\DataTypeTok{id=}\StringTok{"loadmessage"}\NormalTok{)),}
+  \KeywordTok{plotOutput}\NormalTok{(}\StringTok{"plot"}\NormalTok{, }\DataTypeTok{width =} \StringTok{"100%"}\NormalTok{, }\DataTypeTok{height =} \StringTok{"300px"}\NormalTok{) }
+\NormalTok{  ),}
+
+\NormalTok{  server <-}\StringTok{ }\ControlFlowTok{function}\NormalTok{(input, output, session) \{}
+\NormalTok{  output}\OperatorTok{$}\NormalTok{mymap <-}\StringTok{ }\KeywordTok{renderLeaflet}\NormalTok{(\{}
+    \KeywordTok{leaflet}\NormalTok{() }\OperatorTok{%>%}
+\StringTok{    }\NormalTok{leaflet}\OperatorTok{::}\KeywordTok{addProviderTiles}\NormalTok{(}\StringTok{"Stamen.Toner"}\NormalTok{) }\OperatorTok{%>%}
+\StringTok{    }\NormalTok{leaflet}\OperatorTok{::}\KeywordTok{addTiles}\NormalTok{(}\StringTok{"https://maps.tilehosting.com/data/hillshades/\{z\}/\{x\}/\{y\}.png?key=KZO7rAv96Alr8UVUrd4a"}\NormalTok{) }\OperatorTok{%>%}
+\StringTok{    }\NormalTok{leaflet}\OperatorTok{::}\KeywordTok{addProviderTiles}\NormalTok{(}\StringTok{"Stamen.TonerLines"}\NormalTok{) }\OperatorTok{%>%}
+\StringTok{    }\NormalTok{leaflet}\OperatorTok{::}\KeywordTok{addProviderTiles}\NormalTok{(}\StringTok{"Stamen.TonerLabels"}\NormalTok{) }\OperatorTok{%>%}
+\StringTok{    }\NormalTok{leaflet}\OperatorTok{::}\KeywordTok{setView}\NormalTok{(}\DataTypeTok{lng =} \FloatTok{-97.307564}\NormalTok{, }\DataTypeTok{lat =} \FloatTok{40.368971}\NormalTok{, }\DataTypeTok{zoom =} \DecValTok{4}\NormalTok{) }\OperatorTok{%>%}
+\StringTok{      }\NormalTok{leaflet.extras}\OperatorTok{::}\KeywordTok{addDrawToolbar}\NormalTok{(}\DataTypeTok{markerOptions =} \KeywordTok{drawMarkerOptions}\NormalTok{(),}
+                   \DataTypeTok{polylineOptions =} \OtherTok{FALSE}\NormalTok{,}
+                   \DataTypeTok{polygonOptions =} \OtherTok{FALSE}\NormalTok{,}
+                   \DataTypeTok{circleOptions =} \OtherTok{FALSE}\NormalTok{,}
+                   \DataTypeTok{rectangleOptions =} \OtherTok{FALSE}\NormalTok{,}
+                   \DataTypeTok{circleMarkerOptions =} \OtherTok{FALSE}\NormalTok{,}
+                   \DataTypeTok{editOptions =} \OtherTok{FALSE}\NormalTok{,}
+                   \DataTypeTok{singleFeature =} \OtherTok{FALSE}\NormalTok{,}
+                   \DataTypeTok{targetGroup=}\StringTok{'draw'}\NormalTok{)}
+\NormalTok{  \})}
+  
+  \KeywordTok{observeEvent}\NormalTok{(input}\OperatorTok{$}\NormalTok{mymap_draw_new_feature,\{}
+\NormalTok{      feature <-}\StringTok{ }\NormalTok{input}\OperatorTok{$}\NormalTok{mymap_draw_new_feature}
+      \KeywordTok{print}\NormalTok{(}\KeywordTok{c}\NormalTok{(feature}\OperatorTok{$}\NormalTok{geometry}\OperatorTok{$}\NormalTok{coordinates[[}\DecValTok{2}\NormalTok{]],feature}\OperatorTok{$}\NormalTok{geometry}\OperatorTok{$}\NormalTok{coordinates[[}\DecValTok{1}\NormalTok{]]))}
+\NormalTok{      output}\OperatorTok{$}\NormalTok{plot <-}\StringTok{ }\KeywordTok{renderPlot}\NormalTok{(\{}
+        \KeywordTok{precip_plot}\NormalTok{(feature}\OperatorTok{$}\NormalTok{geometry}\OperatorTok{$}\NormalTok{coordinates[[}\DecValTok{2}\NormalTok{]],feature}\OperatorTok{$}\NormalTok{geometry}\OperatorTok{$}\NormalTok{coordinates[[}\DecValTok{1}\NormalTok{]])}
+\NormalTok{      \})}
+\NormalTok{    \})}
+\NormalTok{\})}
+\end{Highlighting}
+\end{Shaded}
+
+
+\end{document}
