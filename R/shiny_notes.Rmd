@@ -17,11 +17,10 @@ zachary.hoylman@mso.umt.edu
 Before we begin, let's install all the packages we will use throughout this lecture.
 
 ```{r eval = FALSE}
-install.packages(c("knitr", "shiny", "leaflet","ncdf4", "lubridate", "dplyr",
-                   "zoo", "ggplot2", "scales", "leaflet.extras"))
-
 libraries = c("knitr", "shiny", "leaflet","ncdf4", "lubridate", "dplyr",
                               "zoo", "ggplot2", "scales", "leaflet.extras")
+
+install.packages(libraries)
 
 lapply(libraries, library, character.only = TRUE)
 ```
@@ -550,4 +549,6 @@ shinyApp(ui <- fluidPage(
 
 ```
 
-Bingo! 
+Bingo! Hopefully now you can see how powerful these packages are, especially when combined. Another nice thing about both of these packages is that they are "web ready", meaning you can host shiny apps on the web with your own web server when combined with "shiny-server" or use an online system like https://www.shinyapps.io. Futher, leaflet maps (when not combined with shiny) can be saved as HTML documents that are ready to host on a traditional web server like Apache or NGINX. You can also send HTML documents containing your interactive map within an email. If you have a shiny component to your leaflet map you will still need a shiny compatible web server. 
+
+If you have any questions about creating your own apps or maps, please feel free to contact me. My email address is at the top of this document.  
