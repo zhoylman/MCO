@@ -72,7 +72,7 @@ shinyApp(
   # There are different lay out options we can use in shiny,
   # here we will be using the "sidebarLayout" option.
   sidebarLayout(
-    # Now we add idebar panel for inputs ----
+    # Now we add sidebar panel for inputs ----
     sidebarPanel(
       # Input: Slider for the number of bins ----
       sliderInput(inputId = "bins",
@@ -101,7 +101,7 @@ server <- function(input, output) {
   output$distPlot <- renderPlot({
     # Fist we define what data is being used in the plot. 
     # For a histogram we want our variable of interest on the x
-    # The user doesnt have an option to change this... yet
+    # The user doesnt have an option to change this.
     x    <- faithful$waiting
     # This is the part that is modifiied by the user (input$bins). 
     # Here the user is overwriting the "bins" variable 
@@ -150,7 +150,7 @@ Now you can see that there is a cyclic nature to these apps. The UI passes an in
 
 # Multivariate example
 
-Great! Now we have a better idea of how these apps work. Lets now do something a bit more realistic.  Say you have a lot of data that you want to visualize in different ways. Lets make an app that allows the user to choose x and y variables from a list of variables, plots them and does a bit of stats. We are going to use the data set "iris" for this example. This data set has information about properties of flowers. 
+Great! Now we have a better idea of how these apps work. Lets now do something a bit more realistic.  Say you have a lot of data that you want to visualize in different ways. Lets make an app that allows the user to choose x and y variables from a list of variables, plots them and does a bit of stats. We are going to use the dataset "iris" for this example. This dataset has information about the properties of flowers. 
 
 ``` {r}
 head(iris)
