@@ -19,6 +19,11 @@ Before we begin, let's install all the packages we will use throughout this lect
 ```{r eval = FALSE}
 install.packages(c("knitr", "shiny", "leaflet","ncdf4", "lubridate", "dplyr",
                    "zoo", "ggplot2", "scales", "leaflet.extras"))
+
+libraries = c("knitr", "shiny", "leaflet","ncdf4", "lubridate", "dplyr",
+                              "zoo", "ggplot2", "scales", "leaflet.extras")
+
+lapply(libraries, library, character.only = TRUE)
 ```
 
 ```{r setup, include=FALSE}
@@ -27,7 +32,7 @@ knitr::opts_chunk$set(echo = TRUE)
 
 # Shiny: Introduction and example
 
-Shiny is an R package that makes it easy to build interactive web applications (apps) straight from R. This lesson will get you started building Shiny apps right away.
+Shiny is an R package that makes it easy to build interactive web applications (apps) straight from R. This lesson will get you familiar with Shiny apps right away.
 
 First lets run a shiny app example that comes with shiny to understand what apps are (in a very very very simple form).
 
@@ -297,7 +302,7 @@ When you put a bunch of pipes together, complex data manipulation can be easy to
 Here is an example:
 
 ``` {r eval = FALSE}
-library(leaflet)
+library(dplyr)
 
 # traditional way of doing some wierd data manipulation (HARD TO READ!!!)
 round(exp(sin(log(iris$Sepal.Length))),2)
