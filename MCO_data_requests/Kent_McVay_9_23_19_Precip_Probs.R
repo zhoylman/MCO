@@ -165,20 +165,19 @@ for(i in 1:length(names)){
 }
   
 map = map %>% 
-  leaflet::addRasterImage(precip_2017, colors = pal1, opacity = 0.8, group = "2017", project = TRUE)%>%
   leaflet::addLegend(pal = pal1,
                      title = "May 1 - July 31<br>(1979-2019)",
                      values = bins,
                      position = "bottomleft")%>%
   leaflet::addPolygons(data = counties_simple, group = "Counties", fillColor = "transparent", weight = 2, color = "black", opacity = 1)%>%
   leaflet::addLayersControl(position = "topleft",
-                            baseGroups = c(names[c(3,1,2,4,5)], "2017"),
+                            baseGroups = c(names[c(1,2,3,4,5)]),
                             overlayGroups = c("States", "Counties"),
                             options = leaflet::layersControlOptions(collapsed = FALSE))
 
 map
 
-htmlwidgets::saveWidget(map, "~/MCO/data_output/precip_probs_w_2107_median_first.html", selfcontained = T)
+htmlwidgets::saveWidget(map, "~/MCO/data_output/precip_probs.html", selfcontained = T)
 
 library(ggplot2)
 
