@@ -67,7 +67,7 @@ shinyApp(ui <- fluidPage(
   # build our UI defining that we want a vertical layout
   verticalLayout(),
   # first we want to display the map
-  leafletOutput("mymap"),
+  leafletOutput("mymap", height = 600),
   # add in a conditional message for when calculations are running. 
   conditionalPanel(condition="$('html').hasClass('shiny-busy')",
                    tags$div("Calculating Climatology...",
