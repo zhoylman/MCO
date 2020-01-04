@@ -1,0 +1,13 @@
+name: get_precip
+title: get_precip
+username:
+account: montana-climate-office-hoylman
+server: shinyapps.io
+hostUrl: https://api.shinyapps.io/v1
+appId: 1489522
+bundleId: 2598553
+url: https://montana-climate-office-hoylman.shinyapps.io/get_precip/
+when: 1574107691.32138
+asMultiple: FALSE
+asStatic: FALSE
+ignoredFiles: base_map.R|download_nrcs.R|drought_gif.R|gridmet_extract_point.R|plot_states.R|RSAGA_TWI.R|shiny_notes.pdf|shiny_notes.Rmd|USFS_get_gdb.R|USFS_leaflet_bitterroot_front.R|var_contrib_area_nfec.R|MCO_data_requests/Mark_Majerus_8_30_19.csv|MCO_data_requests/Mark_Majerus_8_30_19.R
