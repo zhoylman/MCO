@@ -5,51 +5,61 @@ library(tictoc)
 library(plotly)
 library(data.table)
 
+getURL("https://mesonet.climate.umt.edu/api/observations?latest=false&start_time=2020-01-06&end_time=2020-01-10&tz=US%2FMountain&wide=false&type=csv") %>%
+  read_csv()
+
 tic()
-get_current = getURL("https://mesonet.climate.umt.edu/api/observations?latest=false&start_time=2020-01-06&end_time=2020-01-10&tz=US%2FMountain&wide=false&type=csv") %>%
+get_current = getURL("https://mesonet.climate.umt.edu/api/latest?tz=US%2FMountain&wide=false&type=csv") %>%
   read_csv()
 toc()
 
-test = get_current %>%
+data = get_current %>%
   dplyr::filter(station_key == "arskeogh")
 
-p0 = test %>%
-  select(name, value, datetime) %>%
-  dplyr::filter(name == "sol_radi") %>%
-  transform(id = as.integer(factor(name))) %>%
-  plot_ly(x = ~datetime, y = ~value, color = ~name, colors = "orange",
-          yaxis = ~paste0("y", id)) %>%
-  add_lines() 
+plots = list()
 
-p1 = test %>%
-  select(name, value, datetime) %>%
-  dplyr::filter(name == "air_temp") %>%
-  transform(id = as.integer(factor(name))) %>%
-  plot_ly(x = ~datetime, y = ~value, color = ~name, colors = "red",
-          yaxis = ~paste0("y", id)) %>%
-  add_lines() 
+names_str = c("sol_radi", "air_temp", "rel_humi", "wind_spd")
+col = c('red', 'green', 'black', "darkgrey")
+ylab = c("Solar Radiation\n(W/m2)", "Air Temperature\n(°C)", "Relative Humidity\n(%)", "Wind Speed\n(m/2)")
 
-p2 = test %>%
-  select(name, value, datetime) %>%
-  dplyr::filter(name == "rel_humi") %>%
-  transform(id = as.integer(factor(name))) %>%
-  plot_ly(x = ~datetime, y = ~value, color = ~name, colors = "purple",
-          yaxis = ~paste0("y", id)) %>%
-  add_lines() 
+simple_plotly = function(data,name_str,col,ylab){
+  data %>%
+    select(name, value, datetime, units) %>%
+    dplyr::filter(name == name_str) %>%
+    transform(id = as.integer(factor(name))) %>%
+    plot_ly(x = ~datetime, y = ~value, color = ~name, colors = col, showlegend=F, 
+            yaxis = ~paste0("y", id)) %>%
+    layout(yaxis = list(
+      title = paste0(ylab)))%>%
+    add_lines()
+}
 
-p3 = test %>%
-  select(name, value, datetime) %>%
-  dplyr::filter(name == "wind_spd") %>%
-  transform(id = as.integer(factor(name))) %>%
-  plot_ly(x = ~datetime, y = ~value, color = ~name, colors = "blue",
-          yaxis = ~paste0("y", id)) %>%
-  add_lines() 
+for(i in 1:length(names_str)){
+  plots[[i]] = simple_plotly(data,names_str[i], col[i], ylab[i])
+}
 
-p4 = test %>%
+vwc = data %>%
   dplyr::filter(name %like% "soilwc") %>%
-  plot_ly(x = ~datetime, y = ~value,  colors = "black", name = ~name, type = 'scatter', mode = 'lines') %>%
+  plot_ly(x = ~datetime, y = ~value,  colors = "black", name = ~name, type = 'scatter', mode = 'lines', showlegend=T) %>%
+  layout(yaxis = list(
+    title = paste0("Volumetric Water Content\n(m3/m3)")))%>%
   add_lines() 
 
+# annotations
+a <- list(
+  text = "arskeogh",
+  xref = "paper",
+  yref = "paper",
+  yanchor = "bottom",
+  xanchor = "center",
+  align = "center",
+  x = 0.5,
+  y = 1,
+  showarrow = FALSE
+)
 
+final = subplot(plots[[1]], plots[[2]], plots[[3]], plots[[4]], vwc, nrows = 5, shareX = T, titleY = T, titleX = T) %>%
+  layout(annotations = a)%>%
+  layout(legend = list(x = 100, y = 0.1))
 
-subplot(p0,p1,p2,p3,p4, nrows = 5, shareX = T)
+htmlwidgets::saveWidget(final, "~/MCO/data/mesonet/test.html",  selfcontained = F)

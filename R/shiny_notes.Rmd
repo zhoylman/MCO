@@ -126,8 +126,8 @@ shinyApp(
     sidebarPanel(
       sliderInput(inputId = "bins",
                   label = "Number of bins:",
-                  min = 1,
-                  max = 50,
+                  min = 5,
+                  max = 10,
                   value = 30)
     ),
     mainPanel(
@@ -137,7 +137,7 @@ shinyApp(
 ),
 server <- function(input, output) {
   output$distPlot <- renderPlot({
-    x    <- faithful$waiting
+    x    <- faithful$eruptions
     bins <- seq(min(x), max(x), length.out = input$bins + 1)
     hist(x, breaks = bins, col = "#75AADB", border = "white",
          xlab = "Time in between eruptions (Minutes)",
@@ -173,6 +173,7 @@ shinyApp(ui = fluidPage(
   # We are going to define the input ID, Label and Choices.
   # Choices are a name you decide, and then the respective Collumn 
   # name in iris. (See prind out above for more details)
+  
   sidebarLayout(
     sidebarPanel(
       selectInput(inputId = "x",
@@ -236,7 +237,7 @@ Now try to remove the UI option to choose a polynomial degree (hint: you will ha
 ```{r eval = FALSE}
 shinyApp(ui = fluidPage(
   titlePanel("Flowers!"),
-  numericInput(inputId = "poly_degree",
+  numericInput(inputId = "cactus",
                   label = "Choose Polynomial Degree",
                   value = 1, min = 1, max = 5),
   sidebarLayout(
@@ -259,17 +260,17 @@ shinyApp(ui = fluidPage(
   ),
   mainPanel(
     #Output "Plot"
-    plotOutput(outputId = "Plot")
+    plotOutput(outputId = "foobar")
 
   )
 ), server = function(input, output) {
   #render a plot called "Plot"
-  output$Plot = renderPlot({
+  output$foobar = renderPlot({
     #Data
     data = data.frame(x = iris[,input$x],
                       y = iris[,input$y])
     #Model
-    model = with(data,lm(y ~ poly(x,input$poly_degree)))
+    model = with(data,lm(y ~ poly(x,input$cactus)))
     predict_data = data.frame(x = seq(min(data$x), max(data$x), length.out = 1000))
     predicted.intervals = data.frame(predict(model, newdata = predict_data,
                                              interval = "confidence"))
