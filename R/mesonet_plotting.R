@@ -14,6 +14,8 @@ time = data.frame(current = Sys.time() %>%
 stations = getURL("https://mesonet.climate.umt.edu/api/stations?type=csv&clean=true") %>%
   read_csv()
 
+source('/home/zhoylman/MCO/R/mesonet_dynamic_rmd.R')
+
 #define simple plotting fuctions
 simple_plotly = function(data,name_str,col,ylab,conversion_func){
   data %>%
@@ -37,9 +39,9 @@ conversion_func = list(function(x){return(x)},
                        function(x){return(x * 3.28084)})
 
 #loop though stations
-for(s in 1:11){
+for(s in 1:10){
   tic()
-  url = paste0("https://cfcmesonet.cfc.umt.edu/api/observations?stations=",stations$`Station ID`[s], "&latest=false&start_time=",
+  url = paste0("https://mesonet.climate.umt.edu/api/observations?stations=",stations$`Station ID`[s], "&latest=false&start_time=",
                time$start, "&end_time=", time$current+1, "&tz=US%2FMountain&wide=false&type=csv")
   
   data = getURL(url) %>%
@@ -67,9 +69,26 @@ for(s in 1:11){
              as.numeric() %>%
              paste0(., " in")) %>%
     mutate(value = value * 100) %>%
-    plot_ly(x = ~datetime, y = ~value,  colors = "black", name = ~name, type = 'scatter', mode = 'lines', showlegend=T) %>%
+    group_by(name, datetime) %>% ## dont like this.....
+    dplyr::summarise(value = mean(value))%>%
+    plot_ly(x = ~datetime, y = ~value,  colors = "black", name = ~name, showlegend=T) %>%
     layout(yaxis = list(
-      title = paste0("Volumetric Water Content\n(%)")))
+      title = paste0("Soil Moisture\n(%)"))) %>%
+    add_lines()
+  
+  temp = data %>%
+    dplyr::filter(name %like% "soilt") %>%
+    mutate(name = name %>%
+             str_extract(., "(\\d)+") %>%
+             as.numeric() %>%
+             paste0(., " in")) %>%
+    mutate(value = conversion_func[[2]](value)) %>%
+    group_by(name, datetime) %>% ## dont like this.....
+    dplyr::summarise(value = mean(value))%>%
+    plot_ly(x = ~datetime, y = ~value,  colors = "black", name = ~name, showlegend=T) %>%
+    layout(yaxis = list(
+      title = paste0("Soil Temperature\n(°F)"))) %>%
+    add_lines()
   
   # annotations
   a <- list(
@@ -84,14 +103,17 @@ for(s in 1:11){
     showarrow = FALSE
   )
   
-  final = subplot(plots[[1]], plots[[2]], plots[[3]], plots[[4]], vwc, nrows = 5, shareX = T, titleY = T, titleX = T) %>%
+  final = subplot(plots[[1]], plots[[2]], plots[[3]], plots[[4]], vwc, temp, nrows = 6, shareX = T, titleY = T, titleX = T) %>%
     layout(annotations = a)%>%
     layout(legend = list(x = 100, y = 0.1),
            xaxis = list(
              title = "Time"
            ))
   
-  htmlwidgets::saveWidget(final, paste0("~/MCO/data/mesonet/",stations$`Station ID`[s],"_current_data.html"), selfcontained = F, libdir = "~/MCO/data/mesonet/libs")
+  htmlwidgets::saveWidget(final, paste0("~/MCO/data/mesonet/station_page/",stations$`Station ID`[s],"_current_data.html"), selfcontained = F, libdir = "./libs")
   print(s)
   toc()
 }
+
+
+
