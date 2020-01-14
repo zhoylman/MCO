@@ -122,6 +122,4 @@ foreach(s=1:length(stations$`Station name`)) %dopar% {
   
   htmlwidgets::saveWidget(final, paste0("~/MCO/data/mesonet/station_page/",stations$`Station ID`[s],"_current_data.html"), selfcontained = F, libdir = "./libs")
 }
-
-
-
+stopCluster(cl)
