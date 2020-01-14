@@ -1,5 +1,5 @@
 ---
-title: "Montana Mesonet Data Explorer - Belfry E BLM"
+title: "Montana Mesonet Data Explorer - Scobey N MDA"
 self_contained: true
 output: 
   flexdashboard::flex_dashboard:
@@ -24,9 +24,9 @@ output:
   </font>
   </center>
 
-  <iframe src="https://mobile.weather.gov/index.php?lat=45.18&lon=-108.9" height="680" width="100%" frameborder="0"></iframe>
+  <iframe src="https://mobile.weather.gov/index.php?lat=48.88&lon=-105.44" height="680" width="100%" frameborder="0"></iframe>
 
 Row {.tabset .tabset-fade data-height=1600}
 -------------------------------------
-<iframe width="100%" height="100%" allowfullscreen="allowfullscreen" allowvr="yes" frameborder="0" mozallowfullscreen="mozallowfullscreen" scrolling="no" src="https://mco.cfc.umt.edu/mesonet_data/station_page/blmbelfr_current_data.html" webkitallowfullscreen="webkitallowfullscreen"></iframe>
+<iframe width="100%" height="100%" allowfullscreen="allowfullscreen" allowvr="yes" frameborder="0" mozallowfullscreen="mozallowfullscreen" scrolling="no" src="https://mco.cfc.umt.edu/mesonet_data/station_page/mdascoby_current_data.html" webkitallowfullscreen="webkitallowfullscreen"></iframe>
 

@@ -4,6 +4,7 @@ library(tidyverse)
 library(tictoc)
 library(plotly)
 library(data.table)
+library(doParallel)
 
 #get current frame to plot
 time = data.frame(current = Sys.time() %>%
@@ -39,8 +40,17 @@ conversion_func = list(function(x){return(x)},
                        function(x){return(x * 3.28084)})
 
 #loop though stations
-for(s in 1:10){
-  tic()
+cl = makeCluster(detectCores()-1)
+registerDoParallel(cl)
+
+foreach(s=1:length(stations$`Station name`)) %dopar% {
+  library(RCurl)
+  library(dplyr)
+  library(tidyverse)
+  library(tictoc)
+  library(plotly)
+  library(data.table)
+  library(doParallel)  
   url = paste0("https://mesonet.climate.umt.edu/api/observations?stations=",stations$`Station ID`[s], "&latest=false&start_time=",
                time$start, "&end_time=", time$current+1, "&tz=US%2FMountain&wide=false&type=csv")
   
@@ -111,8 +121,6 @@ for(s in 1:10){
            ))
   
   htmlwidgets::saveWidget(final, paste0("~/MCO/data/mesonet/station_page/",stations$`Station ID`[s],"_current_data.html"), selfcontained = F, libdir = "./libs")
-  print(s)
-  toc()
 }
 
 

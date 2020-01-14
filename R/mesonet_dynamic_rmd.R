@@ -47,6 +47,6 @@ Row {.tabset .tabset-fade data-height=1600}
   rmarkdown::render("~/MCO/data/mesonet/station_page/temp.Rmd", output_file = paste0("~/MCO/data/mesonet/station_page/", station_key, ".html"), quiet=TRUE)
 }
 
-for(s in 1:10){
+for(s in 1:length(stations$`Station name`)){
   mesonet_dynamic_rmd(stations$Latitude[s], stations$Longitude[s], stations$`Station ID`[s], stations$`Station name`[s])
 }
