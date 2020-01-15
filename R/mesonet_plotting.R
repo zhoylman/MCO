@@ -121,5 +121,40 @@ foreach(s=1:length(stations$`Station name`)) %dopar% {
            ))
   
   htmlwidgets::saveWidget(final, paste0("~/MCO/data/mesonet/station_page/",stations$`Station ID`[s],"_current_data.html"), selfcontained = F, libdir = "./libs")
+  mesonet_dynamic_rmd(stations$Latitude[s], stations$Longitude[s], stations$`Station ID`[s], stations$`Station name`[s])
+  
+  
+  
+  ## mobile 
+  
+  data_mobile = data %>%
+    dplyr::filter(datetime > time$current - 3)
+  
+  mobile = plot_ly(data_mobile) %>%
+    add_lines(x = ~datetime[name == "air_temp"], y = ~value[name == "air_temp"], name = "Air Temp", visible = T, color=I("green"), showlegend=F) %>%
+    add_lines(x = ~datetime[name == "sol_radi"], y = ~value[name == "sol_radi"], name = "Solar Radiation", visible = F, color=I("red"), showlegend=F) %>%
+    add_lines(x = ~datetime[name == "rel_humi"], y = ~value[name == "rel_humi"], name = "Relitive Humidity", visible = F, color=I("orange"), showlegend=F) %>%
+    layout(autosize = T,
+      yaxis = list(title = "y"),
+      updatemenus = list(
+        list(
+          y = 1.1,
+          x = 0.1,
+          buttons = list(
+            list(method = "restyle",
+                 args = list("visible", list(TRUE, FALSE, FALSE)),
+                 label = "Air Temp"),
+            list(method = "restyle",
+                 args = list("visible", list(FALSE, TRUE, FALSE)),
+                 label = "Solar Radiation"),
+            list(method = "restyle",
+                 args = list("visible", list(FALSE, FALSE, TRUE)),
+                 label = "Relitive Humidity")))
+      )
+    )
+  mobile
+  
+  htmlwidgets::saveWidget(mobile, paste0("~/MCO/data/mesonet/station_page/mobile_test.html"), selfcontained = F, libdir = "./libs")
+  
 }
 stopCluster(cl)

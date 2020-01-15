@@ -8,9 +8,9 @@
 
 
 
-<title>Montana Mesonet Data Explorer - Fort Keogh ARS N</title>
+<title>Montana Mesonet - Fort Keogh ARS N</title>
 
-<meta property="og:title" content="Montana Mesonet Data Explorer - Fort Keogh ARS N" />
+<meta property="og:title" content="Montana Mesonet - Fort Keogh ARS N" />
 
 <meta name='viewport' content='width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no' />
 
@@ -782,7 +782,7 @@ html, body {
   
 </span>
 <span class="navbar-brand">
-  Montana Mesonet Data Explorer - Fort Keogh ARS N
+  Montana Mesonet - Fort Keogh ARS N
   <span class="navbar-author">
         </span>
 </span>
@@ -2563,19 +2563,40 @@ window.FlexDashboardComponents.push({
 
 <div id="dashboard-container">
 
-<div id="inputs" class="section level2 sidebar" data-width="350">
-<h2>Inputs</h2>
+<div id="column" class="section level2 sidebar" data-width="350">
+<h2>Column</h2>
+<div id="section" class="section level3 no-mobile">
+<h3></h3>
 <p><img src="https://climate.umt.edu/imx/MCO_logo.svg" width="100%"></p>
-<hr />
-<center>
-<font size="5"> <strong>Current Weather &amp; Forecast</strong> </font>
-</center>
-<p><iframe src="https://mobile.weather.gov/index.php?lat=46.41&lon=-105.95" height="680" width="100%" frameborder="0"></iframe></p>
 </div>
-<div id="row" class="section level2 tabset tabset-fade" data-height="1600">
-<h2>Row</h2>
-<iframe width="100%" height="100%" allowfullscreen="allowfullscreen" allowvr="yes" frameborder="0" mozallowfullscreen="mozallowfullscreen" scrolling="no" src="https://mco.cfc.umt.edu/mesonet_data/station_page/arskeogh_current_data.html" webkitallowfullscreen="webkitallowfullscreen">
+<div id="stations" class="section level3 no-mobile">
+<h3>Stations</h3>
+<iframe width="100%" height="300" allowfullscreen="allowfullscreen" target="_parent" allowvr="yes" frameborder="0" mozallowfullscreen="mozallowfullscreen" scrolling="no" src="https://mco.cfc.umt.edu/mesonet_data/station_page/simple_mesonet_map.html" webkitallowfullscreen="webkitallowfullscreen">
 </iframe>
+<hr />
+</div>
+<div id="weather-forecast" class="section level3 no-mobile">
+<h3>Weather &amp; Forecast</h3>
+<p><iframe src="https://mobile.weather.gov/index.php?lat=46.41&lon=-105.95" height="680px" width="100%" frameborder="0"></iframe></p>
+</div>
+</div>
+<div id="column-1" class="section level2 tabset tabset-fade">
+<h2>Column</h2>
+<div id="data" class="section level3 no-mobile">
+<h3>Data</h3>
+<iframe width="100%" height="100%" allowfullscreen="allowfullscreen" allowvr="yes" frameborder="0" mozallowfullscreen="mozallowfullscreen" scrolling="yes" src="https://mco.cfc.umt.edu/mesonet_data/station_page/arskeogh_current_data.html" webkitallowfullscreen="webkitallowfullscreen">
+</iframe>
+</div>
+<div id="data-1" class="section level3 mobile">
+<h3>Data</h3>
+<iframe width="100%" height="100%" allowfullscreen="allowfullscreen" allowvr="yes" frameborder="0" mozallowfullscreen="mozallowfullscreen" scrolling="no" src="https://mco.cfc.umt.edu/mesonet_data/station_page/mobile_test.html" webkitallowfullscreen="webkitallowfullscreen">
+</iframe>
+</div>
+<div id="stations-1" class="section level3 mobile">
+<h3>Stations</h3>
+<iframe width="100%" height="300" allowfullscreen="allowfullscreen" target="_parent" allowvr="yes" frameborder="0" mozallowfullscreen="mozallowfullscreen" scrolling="no" src="https://mco.cfc.umt.edu/mesonet_data/station_page/simple_mesonet_map.html" webkitallowfullscreen="webkitallowfullscreen">
+</iframe>
+</div>
 </div>
 
 </div>
