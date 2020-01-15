@@ -5,6 +5,13 @@ library(tictoc)
 library(plotly)
 library(data.table)
 library(doParallel)
+library(knitr)
+library(DT)
+library(units)
+
+# httr::GET(url = "https://cfcmesonet.cfc.umt.edu/api/latest", 
+#           query = list(stations=c("arskeogh"),type = "csv")) %>%
+#   httr::content()
 
 #get current frame to plot
 time = data.frame(current = Sys.time() %>%
@@ -12,7 +19,10 @@ time = data.frame(current = Sys.time() %>%
   mutate(start = current - 14)
 
 #retrieve the curent station list
-stations = getURL("https://mesonet.climate.umt.edu/api/stations?type=csv&clean=true") %>%
+stations = getURL("https://cfcmesonet.cfc.umt.edu/api/stations?type=csv&clean=true") %>%
+  read_csv()
+
+latest = getURL("https://cfcmesonet.cfc.umt.edu/api/latest?tz=US%2FMountain&wide=false&type=csv")%>%
   read_csv()
 
 source('/home/zhoylman/MCO/R/mesonet_dynamic_rmd.R')
@@ -51,7 +61,8 @@ foreach(s=1:length(stations$`Station name`)) %dopar% {
   library(plotly)
   library(data.table)
   library(doParallel)  
-  url = paste0("https://mesonet.climate.umt.edu/api/observations?stations=",stations$`Station ID`[s], "&latest=false&start_time=",
+  
+  url = paste0("https://cfcmesonet.cfc.umt.edu/api/observations?stations=",stations$`Station ID`[s], "&latest=false&start_time=",
                time$start, "&end_time=", time$current+1, "&tz=US%2FMountain&wide=false&type=csv")
   
   data = getURL(url) %>%
@@ -79,7 +90,6 @@ foreach(s=1:length(stations$`Station name`)) %dopar% {
              as.numeric() %>%
              paste0(., " in")) %>%
     mutate(value = value * 100) %>%
-    group_by(name, datetime) %>% ## dont like this.....
     dplyr::summarise(value = mean(value))%>%
     plot_ly(x = ~datetime, y = ~value,  colors = "black", name = ~name, showlegend=T) %>%
     layout(yaxis = list(
@@ -93,7 +103,6 @@ foreach(s=1:length(stations$`Station name`)) %dopar% {
              as.numeric() %>%
              paste0(., " in")) %>%
     mutate(value = conversion_func[[2]](value)) %>%
-    group_by(name, datetime) %>% ## dont like this.....
     dplyr::summarise(value = mean(value))%>%
     plot_ly(x = ~datetime, y = ~value,  colors = "black", name = ~name, showlegend=T) %>%
     layout(yaxis = list(
@@ -124,6 +133,16 @@ foreach(s=1:length(stations$`Station name`)) %dopar% {
   mesonet_dynamic_rmd(stations$Latitude[s], stations$Longitude[s], stations$`Station ID`[s], stations$`Station name`[s])
   
   
+  ## current conditions
+  table_current = latest %>%
+    filter(station_key == "arskeogh") %>% 
+    mutate(datetime = datetime %>%
+             lubridate::with_tz("America/Denver")) %>%
+    select("name", "value", "units") %>%
+    
+    kable()%>%
+    kable_styling() %>%
+    save_kable(file = "~/MCO/data/mesonet/station_page/current_test.html",  selfcontained = F, libdir = "./libs", title = stations$`Station name`[s])
   
   ## mobile 
   
