@@ -9,4 +9,4 @@ map = base_map() %>% addCircleMarkers(data = stations, lat = ~Latitude, lng = ~L
                                 fillColor = "blue", fillOpacity = 0.5, color = "black", opacity = 0.8, radius = 6, weight = 2,
   popup = paste0('<font size="3"> ' ,stations$`Station name`,"<br> <a href='https://mco.cfc.umt.edu/mesonet_data/station_page/",stations$`Station ID`,".html' target='_blank'>Current Data</a> </font>"))
 
-htmlwidgets::saveWidget(map, paste0("~/MCO/data/mesonet/station_page/simple_mesonet_map.html"), selfcontained = F, libdir = "./libs")
+htmlwidgets::saveWidget(map, paste0("~/MCO/data/mesonet/simple_map/simple_mesonet_map.html"), selfcontained = F, libdir = "./libs")
