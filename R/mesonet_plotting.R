@@ -52,7 +52,6 @@ conversion_func = list(function(x){return(x)},
 cl = makeCluster(detectCores()-1)
 registerDoParallel(cl)
 
-<<<<<<< HEAD
 #
 clusterCall(cl, function() {lapply(c("RCurl", "dplyr", "tidyverse", "plotly",
                                      "data.table", "tidyverse", "htmltools",
@@ -61,37 +60,6 @@ clusterCall(cl, function() {lapply(c("RCurl", "dplyr", "tidyverse", "plotly",
 start = Sys.time()
 foreach(s=1:length(stations$`Station ID`)) %dopar% {
   source('/home/zhoylman/MCO/R/mesonet_dynamic_rmd.R')
-=======
-start = Sys.time()
-
-foreach(s=1:length(stations$`Station ID`)) %dopar% {
-  source('/home/zhoylman/MCO/R/mesonet_dynamic_rmd.R')
-  library(RCurl)
-  library(dplyr)
-  library(tidyverse)
-  library(tictoc)
-  library(plotly)
-  library(data.table)
-  library(doParallel) 
-  library(htmltools)
-  library(htmlwidgets)
-  library(knitr)
-  library(kableExtra)
-  
-  #define simple plotting fuctions
-  simple_plotly = function(data,name_str,col,ylab,conversion_func){
-    data %>%
-      dplyr::filter(name == name_str) %>%
-      mutate(value = conversion_func(value)) %>%
-      transform(id = as.integer(factor(name))) %>%
-      plot_ly(x = ~datetime, y = ~value, color = ~name, colors = col, showlegend=F, 
-              yaxis = ~paste0("y", id)) %>%
-      layout(yaxis = list(
-        title = paste0(ylab)))%>%
-      add_lines()
-  }
->>>>>>> 350698e0f3b67b6ed93b88a443e7c30fb8e06446
-  
   url = paste0("https://cfcmesonet.cfc.umt.edu/api/observations?stations=",stations$`Station ID`[s], "&latest=false&start_time=",
                time$start, "&end_time=", time$current+1, "&tz=US%2FMountain&wide=false&type=csv")
   
@@ -172,25 +140,16 @@ foreach(s=1:length(stations$`Station ID`)) %dopar% {
     mutate(datetime = datetime %>%
              lubridate::with_tz("America/Denver")) %>%
     select("name", "value", "units") %>%
-<<<<<<< HEAD
     rename("Name" = name,  "Value" = value, "Units" = units)%>%
-=======
->>>>>>> 350698e0f3b67b6ed93b88a443e7c30fb8e06446
     kable(., "html", caption = paste0("Latest observation was at ", latest_time[1]$datetime %>% as.character()))%>%
     kable_styling(bootstrap_options = c("striped", "hover", "condensed", "responsive"))%>%
     save_kable(file = paste0("~/MCO/data/mesonet/station_page/latest_table/",stations$`Station ID`[s],"_current_table.html"),  selfcontained = F)
   
   #write out final page from RMD
   mesonet_dynamic_rmd(stations$Latitude[s], stations$Longitude[s], stations$`Station ID`[s], stations$`Station name`[s])
-<<<<<<< HEAD
   
   ## mobile Sandbox
   
-=======
-  
-  ## mobile 
-  
->>>>>>> 350698e0f3b67b6ed93b88a443e7c30fb8e06446
   # data_mobile = data %>%
   #   dplyr::filter(datetime > time$current - 3)
   # 
