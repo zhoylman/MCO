@@ -1,0 +1,65 @@
+//import dataset
+var swe = ee.ImageCollection("NASA/ORNL/DAYMET_V3").select('swe')
+
+// empty list to store the years seq below
+var years = [];
+// generate the years sequence (1980 - 2018, by 1 year)
+for (var i = 1980; i <= 2018; i++) {
+    years.push(i);
+}
+
+// define function to extract April 1 Data (nested function)
+// first part defines input data and years sequence
+var get_year = function(variable_data, years){
+  // mapping function will opperate over years sequence (basically for loop over seqence (years))
+  var annual_data = ee.ImageCollection(years.map(function(y) {
+    //extract april 1 for 1 year (based on seq) (for loop ish) (y variable) tehn clip to mt
+    var temp_y = ee.Image(variable_data.filterDate(ee.Date.fromYMD(ee.Number(y),04,01), ee.Date.fromYMD(ee.Number(y),04,02)).mean()).clip(mt)
+    // if you want to print out each image to prove function is working
+    // print(variable_data.filterDate(ee.Date.fromYMD(ee.Number(y),04,01), ee.Date.fromYMD(ee.Number(y),04,02)))
+    // returns you annual april 1 image and assigns metadata (year) to system:index meta key
+    return temp_y.set('system:index', JSON.stringify(y))
+  }))
+  // after mapping is complete then return image collection of all years
+  return annual_data
+}
+
+// see comments on above function
+// only difference here is june 1 instead of april 1
+var get_year_end = function(variable_data, years){
+  var annual_data = ee.ImageCollection(years.map(function(y) {
+    var temp_y = ee.Image(variable_data.filterDate(ee.Date.fromYMD(ee.Number(y),06,01), ee.Date.fromYMD(ee.Number(y),06,02)).mean()).clip(mt)
+    //print(variable_data.filterDate(ee.Date.fromYMD(ee.Number(y),06,01), ee.Date.fromYMD(ee.Number(y),06,02)))
+    return temp_y.set('system:index', JSON.stringify(y))
+  }))
+  return annual_data
+}
+
+// apply function to swe data set and convert to multiband image for export
+// for april 1
+var annual_start = get_year(swe, years).toBands()
+// for June 1
+var annual_end = get_year_end(swe, years).toBands()
+
+// display for shits a gigs
+Map.addLayer(annual_end)
+
+// export multiband image to drive (make folder in drive called daymet [or whatever you want but change in export function])
+
+Export.image.toDrive({
+  description: "April_1_SWE",
+  image: annual_start,
+  folder:'daymet', 
+  maxPixels: 30000000000,
+  region: ee.Feature(mt.first()).bounds(),
+  maxPixels: 1e12,  
+  scale:1000});
+
+Export.image.toDrive({
+  description: "June_1_SWE",
+  image: annual_end,
+  folder:'daymet', 
+  maxPixels: 30000000000,
+  region: ee.Feature(mt.first()).bounds(),
+  maxPixels: 1e12,  
+  scale:1000});

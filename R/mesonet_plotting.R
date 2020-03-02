@@ -1,4 +1,3 @@
-true_start = Sys.time()
 library(RCurl)
 library(dplyr)
 library(tidyverse)
@@ -193,18 +192,17 @@ foreach(s=1:length(stations$`Station ID`)) %dopar% {
     kable_styling(bootstrap_options = c("striped", "hover", "condensed", "responsive"))%>%
     save_kable(file = paste0("~/MCO/data/mesonet/station_page/latest_table/",stations$`Station ID`[s],"_current_table.html"),  selfcontained = F)
   
-  #clean up header artifact
-  temp_html = paste(readLines(paste0("~/MCO/data/mesonet/station_page/latest_table/",stations$`Station ID`[s],"_current_table.html"))) %>%
-    gsub("<p>&lt;!DOCTYPE html&gt; ", "", .)%>%
-    writeLines(., con = paste0("~/MCO/data/mesonet/station_page/latest_table/",stations$`Station ID`[s],"_current_table.html"))
+  read_lines(paste0("~/MCO/data/mesonet/station_page/latest_table/",stations$`Station ID`[s],"_current_table.html"))
   
   #write out final page from RMD
   mesonet_dynamic_rmd(stations$Latitude[s], stations$Longitude[s], stations$`Station ID`[s], stations$`Station name`[s])
+  
 }
 
 Sys.time() - start
+
 stopCluster(cl)
-Sys.time() - true_start
+
 
 
 ## mobile Sandbox
