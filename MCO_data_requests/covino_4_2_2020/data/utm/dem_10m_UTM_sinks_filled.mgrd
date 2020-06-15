@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<SAGA_METADATA>
+  <HISTORY saga-version="2.3.1">
+    <MODULE library="ta_preprocessor" id="2" name="Sink Removal">
+      <OPTION type="grid_system" id="PARAMETERS_GRID_SYSTEM" name="Grid system">
+        <CELLSIZE>10</CELLSIZE>
+        <XMIN>417346.519902415</XMIN>
+        <XMAX>427016.519902415</XMAX>
+        <YMIN>4405332.22541033</YMIN>
+        <YMAX>4419432.22541033</YMAX>
+      </OPTION>
+      <OPTION type="choice" id="METHOD" name="Method" index="1">Fill Sinks</OPTION>
+      <OPTION type="boolean" id="THRESHOLD" name="Threshold">FALSE</OPTION>
+      <OPTION type="double" id="THRSHEIGHT" name="Threshold Height">100.000000</OPTION>
+      <INPUT type="grid" id="DEM" name="DEM" system="PARAMETERS_GRID_SYSTEM">
+        <FILE>./utm/dem_10m_UTM.sgrd</FILE>
+      </INPUT>
+      <OUTPUT type="grid" id="DEM_PREPROC" name="Preprocessed DEM">dem_10m_UTM [no sinks]</OUTPUT>
+    </MODULE>
+  </HISTORY>
+  <SOURCE>
+    <FILE>./utm/dem_10m_UTM_sinks_filled.sgrd</FILE>
+    <DATABASE></DATABASE>
+    <PROJECTION></PROJECTION>
+  </SOURCE>
+  <DESCRIPTION></DESCRIPTION>
+</SAGA_METADATA>

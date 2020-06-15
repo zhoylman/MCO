@@ -1,0 +1,18 @@
+name,station_key,lat,lon,qaqc
+Argenta BLM,blm1arge,45.2512090,-112.8806990,1
+McCartney Mtn BLM,blm3mcca,45.5547560,-112.5952910,1
+Virginia City BLM,blm2virg,45.2657960,-111.8794900,1
+Kidd BLM,blm5kidd,44.8134210,-112.7166550,1
+Glendive BLM,blm6glen,46.9150012,-104.7470311,1
+Terry BLM,blm7terr,46.8366297,-105.2601748,1
+Pumpkin Ck BLM,blmpumpk,46.1968041,-105.6963941,1
+Broadus BLM,blmbroadu,45.4358072,-105.3583966,1
+Capitol BLM,blmcapit,45.3249937,-104.1360855,1
+Plevna BLM,blmplevn,46.4388528,-104.4252710,1
+Battle Creek BLM,blmbattl,45.0683925,-103.7776246,1
+Harding Cutoff BLM,blmhadri,45.1736421,-103.7280812,1
+Roundup NW BLM,blmround,46.5757994,-108.7379633,1
+* Warren E,blmwarre,45.0421492,-108.4422121,0
+Cherry Ridge BLM,blmhavre,48.8722474,-109.0451732,1
+* Lubrecht Forest,lubrecht,46.8945590,-113.4376000,0
+* Hot Springs NE-U,namupper,47.7235976,-114.5373000,0
